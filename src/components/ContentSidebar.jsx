@@ -84,9 +84,9 @@ const ContentSidebar = ({
                       }`}
                     >
                       <div className="pl-3 sm:pl-4">
-                        <div className="font-medium text-xs sm:text-sm text-cream-50">{item.title}</div>
+                        <div className="font-medium text-xs sm:text-sm text-gray-900 dark:text-cream-50">{item.title}</div>
                         {item.description && (
-                          <div className="text-xs text-cream-200 mt-1 line-clamp-2">
+                          <div className="text-xs text-gray-600 dark:text-cream-200 mt-1 line-clamp-2">
                             {item.description}
                           </div>
                         )}

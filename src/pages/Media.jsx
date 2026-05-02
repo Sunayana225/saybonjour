@@ -238,7 +238,7 @@ const Media = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-5rem)] bg-white dark:bg-dark-warm-300">
+    <div className="flex h-[calc(100vh-60px)] bg-white dark:bg-dark-warm-300">
       <SEO
         title="French Films, Music & TV Shows | Media Guide | SayBonjour!"
         description="Discover the best French films, music, and TV series to improve your French naturally. Curated by difficulty level — perfect for beginner to advanced learners."

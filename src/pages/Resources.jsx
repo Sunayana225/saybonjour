@@ -218,7 +218,7 @@ Articles in French agree with the gender and number of the noun they modify.
         section="French Learning"
         tags={selectedArticle ? [selectedArticle.difficulty, "French", "Language Learning"] : ["French", "Resources", "Learning"]}
       />
-      <div className="flex h-[calc(100vh-5rem)] bg-white dark:bg-dark-warm-300">
+      <div className="flex h-[calc(100vh-60px)] bg-white dark:bg-dark-warm-300">
       <ContentSidebar
         sections={sections}
         selectedSection={selectedSection}

@@ -93,7 +93,7 @@ const Quizzes = () => {
         url="/quizzes"
         type={selectedQuiz ? "course" : "website"}
       />
-      <div className="flex h-[calc(100vh-5rem)] bg-gray-50 dark:bg-dark-warm-300">
+      <div className="flex h-[calc(100vh-60px)] bg-gray-50 dark:bg-dark-warm-300">
         <ContentSidebar sections={sections} selectedSection={selectedSection} selectedItem={selectedItem}
           onSectionSelect={setSelectedSection} onItemSelect={handleItemSelect}
           expandedSections={expandedSections} onToggleSection={handleToggleSection} />

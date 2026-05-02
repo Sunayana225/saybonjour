@@ -3,10 +3,15 @@
 
 const STORAGE_KEYS = {
   phrases: 'phraseFavorites',
+  phrase: 'phraseFavorites',
   media: 'mediaFavorites',
   articles: 'articleFavorites',
+  article: 'articleFavorites',
   quizzes: 'quizFavorites',
-  flashcards: 'flashcardFavorites'
+  quiz: 'quizFavorites',
+  flashcards: 'flashcardFavorites',
+  'memory-booster': 'memoryBoosterFavorites',
+  region: 'regionFavorites'
 }
 
 /**

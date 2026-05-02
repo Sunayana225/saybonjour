@@ -952,11 +952,9 @@ const Home = () => {
             {/* Brand Section */}
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <img
-                  src="/logo.png"
-                  alt="SayBonjour Logo"
-                  className="w-10 h-10 object-contain"
-                />
+                <div className="w-10 h-10 rounded-lg bg-burgundy-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-cream-50 font-bold text-lg">B</span>
+                </div>
                 <span className="brand-font text-xl text-cream-50">SayBonjour!</span>
               </div>
               <p className="text-cream-200 text-sm mb-6 max-w-sm">

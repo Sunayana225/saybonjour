@@ -34,9 +34,11 @@ app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3001
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex')
 
-// Secure admin credentials - MUST be set via environment variables
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH
+// Admin credentials — use env vars when set, otherwise use fallback defaults
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin'
+// Hash of 'Admin1234' (pbkdf2, salt='salt', 1000 iter, 64 bytes, sha512)
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ||
+  'a076d05009691df9ff225ecf2dc51b40ba45b240dbd07fa67dabddfb48ee2c26ac2b4350498c380c75787c844479e95e6e4174d824c225ee08c8a3ab76329144'
 
 // Helper function to hash passwords
 const hashPassword = (password) => {
@@ -1065,6 +1067,36 @@ const initCMSTables = () => {
     category TEXT DEFAULT 'General',
     active INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`).run()
+
+  db.prepare(`CREATE TABLE IF NOT EXISTS phrase_sections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`).run()
+
+  db.prepare(`CREATE TABLE IF NOT EXISTS phrases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    french TEXT NOT NULL,
+    english TEXT NOT NULL,
+    literal TEXT DEFAULT '',
+    meaning TEXT DEFAULT '',
+    pronunciation TEXT DEFAULT '',
+    difficulty TEXT DEFAULT 'Beginner',
+    usage TEXT DEFAULT '',
+    example TEXT DEFAULT '',
+    example_translation TEXT DEFAULT '',
+    cultural_note TEXT DEFAULT '',
+    type TEXT DEFAULT 'phrase',
+    section_id INTEGER DEFAULT NULL,
+    section_title TEXT DEFAULT '',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (section_id) REFERENCES phrase_sections(id) ON DELETE SET NULL
   )`).run()
 
   db.close()

@@ -261,7 +261,7 @@ const PhraseOfTheDay = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-5rem)] bg-white dark:bg-dark-warm-300">
+    <div className="flex h-[calc(100vh-60px)] bg-white dark:bg-dark-warm-300">
       <SEO
         title="French Phrase of the Day | Daily French Expressions | SayBonjour!"
         description="Learn a new French phrase every day. Each phrase includes pronunciation audio, English translation, usage examples, and cultural context. Build vocabulary one phrase at a time."
