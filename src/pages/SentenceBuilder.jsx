@@ -4,6 +4,7 @@ import { CheckCircle, XCircle, RotateCcw, ArrowRight, Lightbulb, Shuffle, PenLin
 import { sentenceExercises, fillInBlanks } from '../data/sentenceData'
 import { addXP } from '../utils/progress'
 import SEO from '../components/SEO'
+import SpeakButton from '../components/SpeakButton'
 
 const LEVEL_COLORS = {
   A1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
@@ -124,9 +125,12 @@ const SentenceArrangeExercise = ({ exercise, onComplete }) => {
             className={`rounded-xl p-4 text-sm border ${isCorrect ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'}`}
             initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
           >
-            <div className={`font-bold mb-1 flex items-center gap-2 ${isCorrect ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
-              {isCorrect ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-              {isCorrect ? 'Perfect!' : `Correct: ${exercise.correct.join(' ')}`}
+            <div className={`font-bold mb-1 flex items-center justify-between gap-2 ${isCorrect ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+              <span className="flex items-center gap-2">
+                {isCorrect ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                {isCorrect ? 'Perfect!' : `Correct: ${exercise.correct.join(' ')}`}
+              </span>
+              <SpeakButton text={exercise.correct.join(' ')} size="sm" variant="ghost" />
             </div>
             <div className="text-gray-600 dark:text-gray-300 italic mb-1">"{exercise.translation}"</div>
             {exercise.explanation && <div className="text-xs text-gray-500 dark:text-gray-400">💡 {exercise.explanation}</div>}
@@ -195,16 +199,27 @@ const FillBlankExercise = ({ exercise, onComplete }) => {
       </div>
 
       {/* Sentence display */}
-      <div className="bg-gray-50 dark:bg-dark-warm-200 rounded-xl p-4 text-center text-base font-medium text-gray-800 dark:text-cream-50 border border-gray-200 dark:border-dark-warm-50">
-        {parts[0]}
-        <span className={`inline-block min-w-[80px] px-2 py-0.5 mx-1 rounded-lg border-b-2 border-dashed text-center font-bold transition-colors ${
-          !checked ? 'border-burgundy-400 text-burgundy-600 dark:text-burgundy-400'
-          : selected === exercise.answer ? 'border-emerald-400 text-emerald-700 dark:text-emerald-400'
-          : 'border-red-400 text-red-600 dark:text-red-400'
-        }`}>
-          {selected !== null ? exercise.options[selected] : '___'}
-        </span>
-        {parts[1]}
+      <div className="bg-gray-50 dark:bg-dark-warm-200 rounded-xl p-4 text-base font-medium text-gray-800 dark:text-cream-50 border border-gray-200 dark:border-dark-warm-50 flex items-center justify-between gap-3">
+        <div className="text-center flex-1">
+          {parts[0]}
+          <span className={`inline-block min-w-[80px] px-2 py-0.5 mx-1 rounded-lg border-b-2 border-dashed text-center font-bold transition-colors ${
+            !checked ? 'border-burgundy-400 text-burgundy-600 dark:text-burgundy-400'
+            : selected === exercise.answer ? 'border-emerald-400 text-emerald-700 dark:text-emerald-400'
+            : 'border-red-400 text-red-600 dark:text-red-400'
+          }`}>
+            {selected !== null ? exercise.options[selected] : '___'}
+          </span>
+          {parts[1]}
+        </div>
+        {checked && (
+          <div className="flex-shrink-0">
+            <SpeakButton
+              text={exercise.sentence.replace('___', exercise.options[exercise.answer])}
+              size="sm"
+              variant="ghost"
+            />
+          </div>
+        )}
       </div>
 
       {/* Options */}
