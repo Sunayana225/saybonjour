@@ -214,7 +214,6 @@ Articles in French agree with the gender and number of the noun they modify.
         }
         url="/resources"
         type={selectedArticle ? "article" : "website"}
-        image="/og-resources.jpg"
         publishedTime={selectedArticle?.lastUpdated}
         section="French Learning"
         tags={selectedArticle ? [selectedArticle.difficulty, "French", "Language Learning"] : ["French", "Resources", "Learning"]}

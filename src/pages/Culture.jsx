@@ -429,7 +429,7 @@ Free concerts throughout France. Everyone can play in the street.
 
   if (selectedArticle) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 pt-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
           {/* Article Header */}
           <div className="mb-6 sm:mb-8">
@@ -534,7 +534,7 @@ Free concerts throughout France. Everyone can play in the street.
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 pt-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8 text-center">

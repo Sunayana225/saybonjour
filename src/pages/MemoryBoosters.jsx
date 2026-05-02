@@ -388,7 +388,7 @@ const MemoryBoosters = () => {
                                     </div>
                                   )}
                                   <div>
-                                    <span className="text-xs text-gray-600 font-medium">
+                                    <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                                       {example.france ? 'France:' : 'Standard:'}
                                     </span>
                                     <div className="flex items-center space-x-1">

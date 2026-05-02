@@ -462,7 +462,7 @@ const Navbar = () => {
                                     <p className="text-sm font-medium text-gray-100">
                                       {highlightMatch(item.label, searchQuery)}
                                     </p>
-                                    <p className="text-xs text-gray-500">{item.desc}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{item.desc}</p>
                                   </div>
                                 </button>
                               ))}

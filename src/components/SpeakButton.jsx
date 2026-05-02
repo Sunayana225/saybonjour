@@ -118,7 +118,7 @@ const SpeakButton = ({
         <div
           className={`
             ${sizeConfig[size].button}
-            bg-gray-100 text-gray-400
+            bg-gray-100 dark:bg-dark-warm-100 text-gray-400
             rounded-lg flex items-center justify-center
             cursor-not-allowed opacity-50
           `}

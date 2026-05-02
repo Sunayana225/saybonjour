@@ -136,7 +136,7 @@ const ReadingComprehension = () => {
   return (
     <>
       <SEO title="French Reading Comprehension | SayBonjour" description="Improve your French reading comprehension with graded passages from A1 to B2." url="/reading" />
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 pt-20">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>

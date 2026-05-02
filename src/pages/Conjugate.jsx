@@ -160,7 +160,7 @@ const Conjugate = () => {
     return (
       <span>
         {text.slice(0, idx)}
-        <span className="font-bold text-gray-900">{text.slice(idx, idx + query.length)}</span>
+        <span className="font-bold text-gray-900 dark:text-cream-50">{text.slice(idx, idx + query.length)}</span>
         {text.slice(idx + query.length)}
       </span>
     )
@@ -208,7 +208,7 @@ const Conjugate = () => {
                     onFocus={() => { setShowSuggestions(true); if (search) fetchSuggestions(search) }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 180)}
                     placeholder="Type a verb (e.g. parler, vouloir, écrire...)"
-                    className="w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-800 bg-white shadow-lg text-base focus:outline-none focus:ring-2 focus:ring-burgundy-400"
+                    className="w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-800 dark:text-cream-50 bg-white dark:bg-dark-warm-100 shadow-lg text-base focus:outline-none focus:ring-2 focus:ring-burgundy-400"
                   />
                   {sugLoading && (
                     <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-burgundy-400 animate-spin" />
@@ -221,7 +221,7 @@ const Conjugate = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -4, scale: 0.99 }}
                       transition={{ duration: 0.1 }}
-                      className="absolute top-full mt-1 w-full bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden py-1"
+                      className="absolute top-full mt-1 w-full bg-white dark:bg-dark-warm-100 rounded-2xl shadow-2xl border border-gray-200 dark:border-dark-warm-50 z-50 overflow-hidden py-1"
                     >
                       {sugLoading && suggestions.length === 0 ? (
                         <div className="px-4 py-3 flex items-center gap-3 text-sm text-gray-400">
@@ -235,11 +235,11 @@ const Conjugate = () => {
                             onMouseDown={() => handleSelectVerb(v.infinitive)}
                             onMouseEnter={() => setActiveIndex(i)}
                             className={`w-full text-left px-4 py-2.5 flex items-center gap-3 text-sm transition-colors ${
-                              i === activeIndex ? 'bg-burgundy-50' : 'hover:bg-gray-50'
+                              i === activeIndex ? 'bg-burgundy-50 dark:bg-burgundy-900/30' : 'hover:bg-gray-50 dark:hover:bg-dark-warm-200'
                             }`}
                           >
                             <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                            <span className="flex-1 text-gray-700">
+                            <span className="flex-1 text-gray-700 dark:text-gray-200">
                               {highlightMatch(v.infinitive, search.trim())}
                             </span>
                             {v.english && (

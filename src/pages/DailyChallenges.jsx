@@ -352,7 +352,7 @@ const DailyChallenges = () => {
   return (
     <>
       <SEO title="Daily Challenges | SayBonjour" url="/daily-challenges" />
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 pt-20">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-3xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>

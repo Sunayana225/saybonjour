@@ -8,7 +8,7 @@ const NotFound = () => {
   return (
     <>
       <SEO title="Page Not Found | SayBonjour" url="/404" />
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 flex items-center justify-center px-4 pt-20">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 flex items-center justify-center px-4">
         <motion.div
           className="text-center max-w-md"
           initial={{ opacity: 0, y: 30 }}

@@ -369,7 +369,7 @@ const PhraseOfTheDay = () => {
                     />
                     {showPronunciation && (
                       <motion.div
-                        className="text-gray-600 italic text-sm sm:text-base text-center"
+                        className="text-gray-600 dark:text-gray-400 italic text-sm sm:text-base text-center"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

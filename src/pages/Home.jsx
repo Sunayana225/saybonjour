@@ -66,7 +66,6 @@ const Home = () => {
         keywords="learn french, french lessons, french language, online french course, french grammar, french vocabulary, french culture, french learning platform, interactive french, french quizzes, french media, french pronunciation"
         url="/"
         type="website"
-        image="/og-home.jpg"
       />
       <div className="min-h-screen">
       {/* Hero Section - Enhanced with Dynamic Elements */}
@@ -993,12 +992,12 @@ const Home = () => {
             <div>
               <h3 className="text-burgundy-300 font-semibold text-sm uppercase tracking-wider mb-4">Learning</h3>
               <ul className="space-y-3 text-sm">
-                <li><a href="/resources" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Content & Resources</a></li>
-                <li><a href="/phrase-of-the-day" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Phrase of the Day</a></li>
-                <li><a href="/memory-boosters" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Memory Boosters</a></li>
-                <li><a href="/worksheets" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Worksheets</a></li>
-                <li><a href="/quizzes" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Interactive Quizzes</a></li>
-                <li><a href="/study-tools" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Study Tools</a></li>
+                <li><Link to="/resources" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Content & Resources</Link></li>
+                <li><Link to="/phrase-of-the-day" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Phrase of the Day</Link></li>
+                <li><Link to="/memory-boosters" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Memory Boosters</Link></li>
+                <li><Link to="/worksheets" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Worksheets</Link></li>
+                <li><Link to="/quizzes" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Interactive Quizzes</Link></li>
+                <li><Link to="/study-tools" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Study Tools</Link></li>
               </ul>
             </div>
 
@@ -1006,9 +1005,9 @@ const Home = () => {
             <div>
               <h3 className="text-burgundy-300 font-semibold text-sm uppercase tracking-wider mb-4">Culture</h3>
               <ul className="space-y-3 text-sm">
-                <li><a href="/culture" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Cultural Insights</a></li>
-                <li><a href="/france-map" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Interactive France Map</a></li>
-                <li><a href="/media" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">French in Media</a></li>
+                <li><Link to="/culture" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Cultural Insights</Link></li>
+                <li><Link to="/france-map" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Interactive France Map</Link></li>
+                <li><Link to="/media" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">French in Media</Link></li>
                 <li><span className="text-cream-300">French Movies</span></li>
                 <li><span className="text-cream-300">French Music</span></li>
                 <li><span className="text-cream-300">French TV Shows</span></li>

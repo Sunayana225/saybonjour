@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Heart, BookOpen, Film, Music, Tv, MessageSquare, Trash2, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { getAllFavorites, removeFromFavorites } from '../utils/favorites'
@@ -57,7 +58,7 @@ const Favorites = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white dark:from-dark-warm-300 dark:to-dark-warm-300 pt-16">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white dark:from-dark-warm-300 dark:to-dark-warm-300">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <motion.div
@@ -111,15 +112,15 @@ const Favorites = () => {
               media, articles, and more!
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="/phrase-of-the-day" className="bg-burgundy-600 text-white px-6 py-3 rounded-lg hover:bg-burgundy-700 transition-colors">
+              <Link to="/phrase-of-the-day" className="bg-burgundy-600 text-white px-6 py-3 rounded-lg hover:bg-burgundy-700 transition-colors">
                 Browse Phrases
-              </a>
-              <a href="/media" className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
+              </Link>
+              <Link to="/media" className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
                 Explore Media
-              </a>
-              <a href="/resources" className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
+              </Link>
+              <Link to="/resources" className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
                 Read Articles
-              </a>
+              </Link>
             </div>
           </motion.div>
         ) : (
@@ -198,15 +199,15 @@ const Favorites = () => {
                     Click the ❤️ icon when you find something you love!
                   </p>
                   <div className="flex flex-wrap justify-center gap-3">
-                    <a
-                      href={activeTab === 'phrases' ? '/phrase-of-the-day' :
-                            activeTab === 'media' ? '/media' :
-                            activeTab === 'articles' ? '/resources' :
-                            activeTab === 'quizzes' ? '/quizzes' : '/study-tools'}
+                    <Link
+                      to={activeTab === 'phrases' ? '/phrase-of-the-day' :
+                          activeTab === 'media' ? '/media' :
+                          activeTab === 'articles' ? '/resources' :
+                          activeTab === 'quizzes' ? '/quizzes' : '/study-tools'}
                       className="bg-burgundy-600 text-white px-6 py-2 rounded-lg hover:bg-burgundy-700 transition-colors"
                     >
                       Explore {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                    </a>
+                    </Link>
                   </div>
                 </div>
               ) : (

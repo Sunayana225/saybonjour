@@ -148,7 +148,7 @@ const StudyTools = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 pt-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Header */}
         <motion.div
@@ -163,7 +163,7 @@ const StudyTools = () => {
 
         {/* Tabs */}
         <motion.div
-          className="border-b border-gray-200 mb-4 sm:mb-6 px-2"
+          className="border-b border-gray-200 dark:border-dark-warm-50 mb-4 sm:mb-6 px-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}

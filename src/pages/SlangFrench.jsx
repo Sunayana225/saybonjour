@@ -21,7 +21,7 @@ const SlangCard = ({ item }) => {
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="text-base font-bold text-burgundy-700 dark:text-cream-100 italic">"{item.fr}"</div>
-        <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${REGISTER_COLORS[item.register] || 'bg-gray-100 text-gray-600'}`}>
+        <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${REGISTER_COLORS[item.register] || 'bg-gray-100 dark:bg-dark-warm-100 text-gray-600 dark:text-gray-300'}`}>
           {item.register}
         </span>
       </div>
@@ -111,7 +111,7 @@ export default function SlangFrench() {
   return (
     <>
       <SEO title="French Slang | SayBonjour" url="/slang-french" />
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 pt-20">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-3xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>

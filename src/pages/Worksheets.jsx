@@ -367,7 +367,7 @@ startxref
               </div>
 
               {/* Visual Divider */}
-              <div className="hidden md:block border-l border-gray-300 h-8 mx-2"></div>
+              <div className="hidden md:block border-l border-gray-300 dark:border-dark-warm-50 h-8 mx-2"></div>
 
               {/* Levels Section */}
               <div className="flex flex-wrap items-center gap-2">

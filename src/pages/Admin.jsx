@@ -603,15 +603,15 @@ const Admin = () => {
   const currentItems = activeTab === 'articles' ? articles : activeTab === 'quizzes' ? quizzes : activeTab === 'worksheets' ? worksheets : activeTab === 'phrases' ? phrases : activeTab === 'phrase-sections' ? phraseSections : sections
 
   return (
-    <div className="min-h-screen bg-cream-50 pt-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-sm sm:text-base text-gray-600">Manage your French learning content and sections</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-cream-50">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Manage your French learning content and sections</p>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 dark:border-dark-warm-50 mb-6">
           <nav className="-mb-px flex space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('sections')}
@@ -694,14 +694,14 @@ const Admin = () => {
         </div>
 
         {/* Content List */}
-        <div className="bg-amber-50 shadow overflow-hidden sm:rounded-md">
+        <div className="bg-amber-50 dark:bg-dark-warm-100 shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
             {currentItems.map((item) => (
               <li key={item.id}>
                 <div className="px-4 py-4 flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-900">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-cream-50 dark:text-cream-50">
                         {item.title}
                       </h3>
                       {activeTab !== 'sections' && (
@@ -721,22 +721,22 @@ const Admin = () => {
                             </span>
                           )}
                           {activeTab !== 'worksheets' && (
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
                               {item.sectionTitle}
                             </span>
                           )}
                         </div>
                       )}
                     </div>
-                    <p className="text-gray-600 mt-1">{item.description}</p>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">{item.description}</p>
                     {activeTab === 'sections' && (
-                      <div className="mt-2 text-sm text-gray-500">
+                      <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         {articles.filter(a => a.sectionId === item.id).length} articles, {' '}
                         {quizzes.filter(q => q.sectionId === item.id).length} quizzes
                       </div>
                     )}
                     {activeTab === 'worksheets' && (
-                      <div className="mt-2 text-sm text-gray-500">
+                      <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         File: {item.fileName || 'No file uploaded'}
                       </div>
                     )}
@@ -773,9 +773,9 @@ const Admin = () => {
         {/* Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
-            <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-4xl shadow-lg rounded-md bg-amber-50 min-h-[calc(100vh-2rem)] sm:min-h-auto">
+            <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-4xl shadow-lg rounded-md bg-amber-50 dark:bg-dark-warm-100 min-h-[calc(100vh-2rem)] sm:min-h-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 pr-4">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-cream-50 dark:text-cream-50 pr-4">
                   {editingItem ? 'Edit' : 'Add'} {activeTab === 'articles' ? 'Article' : activeTab === 'quizzes' ? 'Quiz' : activeTab === 'worksheets' ? 'Worksheet' : 'Phrase'}
                 </h3>
                 <button
@@ -789,7 +789,7 @@ const Admin = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Title
                     </label>
                     <input
@@ -803,20 +803,20 @@ const Admin = () => {
                           setFormData(prev => ({ ...prev, title: e.target.value }))
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                     />
                   </div>
                   
                   {activeTab !== 'worksheets' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Section
                       </label>
                       <select
                         required
                         value={formData.sectionId}
                         onChange={(e) => setFormData(prev => ({ ...prev, sectionId: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                       >
                         <option value="">Select a section</option>
                         {sections.map(section => (
@@ -830,7 +830,7 @@ const Admin = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description
                   </label>
                   <textarea
@@ -844,12 +844,12 @@ const Admin = () => {
                         setFormData(prev => ({ ...prev, description: e.target.value }))
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Difficulty
                   </label>
                   <select
@@ -861,7 +861,7 @@ const Admin = () => {
                         setFormData(prev => ({ ...prev, difficulty: e.target.value }))
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -871,12 +871,12 @@ const Admin = () => {
 
                 {activeTab === 'articles' ? (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Content
                     </label>
 
                     {/* Rich Text Editor Toolbar */}
-                    <div className="border border-gray-300 rounded-t-md bg-gray-50 p-2 flex flex-wrap gap-1">
+                    <div className="border border-gray-300 dark:border-dark-warm-50 rounded-t-md bg-gray-50 dark:bg-dark-warm-200 p-2 flex flex-wrap gap-1">
                       {/* Text Formatting */}
                       <div className="flex border-r border-gray-300 pr-2 mr-2">
                         <button
@@ -917,7 +917,7 @@ const Admin = () => {
                       <div className="flex border-r border-gray-300 pr-2 mr-2">
                         <select
                           onChange={(e) => formatText('fontSize', e.target.value)}
-                          className="px-2 py-1 text-sm border border-gray-300 rounded"
+                          className="px-2 py-1 text-sm border border-gray-300 dark:border-dark-warm-50 bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 rounded"
                           defaultValue="3"
                         >
                           <option value="1">8pt</option>
@@ -935,13 +935,13 @@ const Admin = () => {
                         <input
                           type="color"
                           onChange={(e) => formatText('foreColor', e.target.value)}
-                          className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                          className="w-8 h-8 border border-gray-300 dark:border-dark-warm-50 rounded cursor-pointer"
                           title="Text Color"
                         />
                         <input
                           type="color"
                           onChange={(e) => formatText('backColor', e.target.value)}
-                          className="w-8 h-8 border border-gray-300 rounded cursor-pointer ml-1"
+                          className="w-8 h-8 border border-gray-300 dark:border-dark-warm-50 rounded cursor-pointer ml-1"
                           title="Background Color"
                         />
                       </div>
@@ -1040,7 +1040,7 @@ const Admin = () => {
                             }
                             handleContentChange()
                           }}
-                          className="px-2 py-1 text-sm border border-gray-300 rounded"
+                          className="px-2 py-1 text-sm border border-gray-300 dark:border-dark-warm-50 bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 rounded"
                           defaultValue="1.5"
                         >
                           <option value="1">Single</option>
@@ -1205,7 +1205,7 @@ const Admin = () => {
                         const text = e.clipboardData.getData('text/plain')
                         document.execCommand('insertText', false, text)
                       }}
-                      className="w-full min-h-[300px] px-3 py-2 border border-gray-300 border-t-0 rounded-b-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500 bg-white prose prose-sm max-w-none"
+                      className="w-full min-h-[300px] px-3 py-2 border border-gray-300 dark:border-dark-warm-50 border-t-0 rounded-b-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500 bg-white dark:bg-dark-warm-100 dark:text-cream-50 prose prose-sm max-w-none"
                       style={{
                         maxHeight: '500px',
                         overflowY: 'auto',
@@ -1216,29 +1216,29 @@ const Admin = () => {
                     />
 
                     {/* Character Count and Shortcuts */}
-                    <div className="flex justify-between items-center text-sm text-gray-500 mt-1">
+                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
                       <div>
                         Characters: {formData.content.replace(/<[^>]*>/g, '').length}
                       </div>
                       <div className="text-xs">
-                        Shortcuts: <kbd className="px-1 py-0.5 bg-gray-100 rounded">Ctrl+B</kbd> Bold,
-                        <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Ctrl+I</kbd> Italic,
-                        <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Ctrl+U</kbd> Underline,
-                        <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Ctrl+K</kbd> Link,
-                        <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Ctrl+Z</kbd> Undo
+                        Shortcuts: <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-dark-warm-200 rounded">Ctrl+B</kbd> Bold,
+                        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-dark-warm-200 rounded ml-1">Ctrl+I</kbd> Italic,
+                        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-dark-warm-200 rounded ml-1">Ctrl+U</kbd> Underline,
+                        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-dark-warm-200 rounded ml-1">Ctrl+K</kbd> Link,
+                        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-dark-warm-200 rounded ml-1">Ctrl+Z</kbd> Undo
                       </div>
                     </div>
                   </div>
                 ) : activeTab === 'worksheets' ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Category
                       </label>
                       <select
                         value={worksheetFormData.category}
                         onChange={(e) => setWorksheetFormData(prev => ({ ...prev, category: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                       >
                         <option value="Grammar">Grammar</option>
                         <option value="Vocabulary">Vocabulary</option>
@@ -1251,13 +1251,13 @@ const Admin = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Upload PDF File
                       </label>
                       <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         <div className="space-y-1 text-center">
                           <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                          <div className="flex text-sm text-gray-600">
+                          <div className="flex text-sm text-gray-600 dark:text-gray-400">
                             <label htmlFor="file-upload" className="relative cursor-pointer bg-amber-50 rounded-md font-medium text-burgundy-600 hover:text-burgundy-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-burgundy-500">
                               <span>Upload a file</span>
                               <input
@@ -1271,7 +1271,7 @@ const Admin = () => {
                             </label>
                             <p className="pl-1">or drag and drop</p>
                           </div>
-                          <p className="text-xs text-gray-500">PDF up to 10MB</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">PDF up to 10MB</p>
                           {worksheetFormData.fileName && (
                             <p className="text-sm text-green-600 mt-2">
                               Selected: {worksheetFormData.fileName}
@@ -1286,7 +1286,7 @@ const Admin = () => {
                     {/* Title and Description */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Title *
                         </label>
                         <input
@@ -1294,20 +1294,20 @@ const Admin = () => {
                           required
                           value={phraseFormData.title}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, title: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                           placeholder="e.g., Little by little, the bird builds its nest"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Description
                         </label>
                         <input
                           type="text"
                           value={phraseFormData.description}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, description: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                           placeholder="e.g., A French proverb about patience and persistence"
                         />
                       </div>
@@ -1316,7 +1316,7 @@ const Admin = () => {
                     {/* French and English */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           French Phrase *
                         </label>
                         <div className="flex items-center space-x-2">
@@ -1325,7 +1325,7 @@ const Admin = () => {
                             required
                             value={phraseFormData.french}
                             onChange={(e) => setPhraseFormData(prev => ({ ...prev, french: e.target.value }))}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                             placeholder="e.g., Petit à petit, l'oiseau fait son nid"
                           />
                           {phraseFormData.french && (
@@ -1339,7 +1339,7 @@ const Admin = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           English Translation *
                         </label>
                         <input
@@ -1347,7 +1347,7 @@ const Admin = () => {
                           required
                           value={phraseFormData.english}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, english: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                           placeholder="e.g., Little by little, the bird builds its nest"
                         />
                       </div>
@@ -1356,27 +1356,27 @@ const Admin = () => {
                     {/* Pronunciation and Meaning */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Pronunciation Guide
                         </label>
                         <input
                           type="text"
                           value={phraseFormData.pronunciation}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, pronunciation: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                           placeholder="e.g., puh-TEE ah puh-TEE, lwa-ZOH feh sohn NEE"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Literal Translation
                         </label>
                         <input
                           type="text"
                           value={phraseFormData.literal}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, literal: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                           placeholder="e.g., Little by little, the bird makes its nest"
                         />
                       </div>
@@ -1384,7 +1384,7 @@ const Admin = () => {
 
                     {/* Meaning and Usage */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Meaning/Interpretation *
                       </label>
                       <textarea
@@ -1392,20 +1392,20 @@ const Admin = () => {
                         rows={2}
                         value={phraseFormData.meaning}
                         onChange={(e) => setPhraseFormData(prev => ({ ...prev, meaning: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         placeholder="e.g., Patience and persistence lead to success"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Usage Context
                       </label>
                       <textarea
                         rows={2}
                         value={phraseFormData.usage}
                         onChange={(e) => setPhraseFormData(prev => ({ ...prev, usage: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         placeholder="e.g., Used to encourage patience and steady progress"
                       />
                     </div>
@@ -1413,7 +1413,7 @@ const Admin = () => {
                     {/* Example */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Example Sentence (French)
                         </label>
                         <div className="flex items-center space-x-2">
@@ -1421,7 +1421,7 @@ const Admin = () => {
                             rows={2}
                             value={phraseFormData.example}
                             onChange={(e) => setPhraseFormData(prev => ({ ...prev, example: e.target.value }))}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                             placeholder="e.g., Ne t'inquiète pas pour tes études. Petit à petit, l'oiseau fait son nid."
                           />
                           {phraseFormData.example && (
@@ -1435,14 +1435,14 @@ const Admin = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Example Translation (English)
                         </label>
                         <textarea
                           rows={2}
                           value={phraseFormData.exampleTranslation}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, exampleTranslation: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                           placeholder="e.g., Don't worry about your studies. Little by little, the bird builds its nest."
                         />
                       </div>
@@ -1451,14 +1451,14 @@ const Admin = () => {
                     {/* Metadata */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Type *
                         </label>
                         <select
                           required
                           value={phraseFormData.type}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, type: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         >
                           <option value="proverb">Proverb</option>
                           <option value="idiom">Idiom</option>
@@ -1468,14 +1468,14 @@ const Admin = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Section *
                         </label>
                         <select
                           required
                           value={phraseFormData.sectionId}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, sectionId: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         >
                           <option value="">Select Section</option>
                           {phraseSections.map(section => (
@@ -1487,14 +1487,14 @@ const Admin = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Difficulty *
                         </label>
                         <select
                           required
                           value={phraseFormData.difficulty}
                           onChange={(e) => setPhraseFormData(prev => ({ ...prev, difficulty: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         >
                           <option value="Beginner">Beginner</option>
                           <option value="Intermediate">Intermediate</option>
@@ -1505,14 +1505,14 @@ const Admin = () => {
 
                     {/* Cultural Note */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Cultural Note
                       </label>
                       <textarea
                         rows={3}
                         value={phraseFormData.culturalNote}
                         onChange={(e) => setPhraseFormData(prev => ({ ...prev, culturalNote: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         placeholder="e.g., This is a classic French proverb emphasizing the value of patience and gradual progress."
                       />
                     </div>
@@ -1521,7 +1521,7 @@ const Admin = () => {
                   <div className="space-y-6">
                     {/* Title and Description for Phrase Sections */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Section Title *
                       </label>
                       <input
@@ -1529,13 +1529,13 @@ const Admin = () => {
                         required
                         value={formData.title}
                         onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         placeholder="e.g., Proverbs, Idioms, Expressions"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Description *
                       </label>
                       <textarea
@@ -1543,7 +1543,7 @@ const Admin = () => {
                         rows={3}
                         value={formData.description}
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         placeholder="e.g., Traditional French proverbs and sayings"
                       />
                     </div>
@@ -1551,7 +1551,7 @@ const Admin = () => {
                 ) : (
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Questions
                       </label>
                       <button
@@ -1564,7 +1564,7 @@ const Admin = () => {
                     </div>
 
                     {formData.questions.map((question, qIndex) => (
-                      <div key={question.id} className="border border-gray-200 rounded-lg p-4 mb-4">
+                      <div key={question.id} className="border border-gray-200 dark:border-dark-warm-50 rounded-lg p-4 mb-4">
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium">Question {qIndex + 1}</h4>
                           <button
@@ -1581,7 +1581,7 @@ const Admin = () => {
                           placeholder="Enter question"
                           value={question.question}
                           onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-3 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 rounded-md mb-3 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                         />
 
                         <div className="space-y-2">
@@ -1599,7 +1599,7 @@ const Admin = () => {
                                 placeholder={`Option ${oIndex + 1}`}
                                 value={option}
                                 onChange={(e) => updateQuestionOption(qIndex, oIndex, e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                                className="flex-1 px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                               />
                             </div>
                           ))}
@@ -1633,9 +1633,9 @@ const Admin = () => {
         {/* Section Form Modal */}
         {showSectionForm && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-amber-50">
+            <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-amber-50 dark:bg-dark-warm-100">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-cream-50 dark:text-cream-50">
                   {editingSection ? 'Edit' : 'Add'} Section
                 </h3>
                 <button
@@ -1648,7 +1648,7 @@ const Admin = () => {
 
               <form onSubmit={handleSectionSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Section Title
                   </label>
                   <input
@@ -1656,13 +1656,13 @@ const Admin = () => {
                     required
                     value={sectionFormData.title}
                     onChange={(e) => setSectionFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                     placeholder="e.g., French Basics, Grammar Fundamentals"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description
                   </label>
                   <textarea
@@ -1670,7 +1670,7 @@ const Admin = () => {
                     rows={3}
                     value={sectionFormData.description}
                     onChange={(e) => setSectionFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500"
                     placeholder="Describe what this section covers..."
                   />
                 </div>

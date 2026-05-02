@@ -5,7 +5,7 @@ const SEO = ({
   title = "SayBonjour - Learn French Online | Interactive French Learning Platform",
   description = "Master French with SayBonjour - the comprehensive online French learning platform. Interactive lessons, quizzes, cultural insights, and more. Start your French journey today!",
   keywords = "learn french, french lessons, french language, online french course, french grammar, french vocabulary, french culture, french learning platform, saybonjour",
-  image = "/og-image.jpg",
+  image = null,
   url = "",
   type = "website",
   author = "SayBonjour Team",
@@ -18,7 +18,7 @@ const SEO = ({
 }) => {
   const siteUrl = "https://saybonjour.com" // Replace with your actual domain
   const fullUrl = `${siteUrl}${url}`
-  const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`
+  const fullImageUrl = image ? (image.startsWith('http') ? image : `${siteUrl}${image}`) : null
 
   // Structured Data for Organization
   const organizationSchema = {
@@ -130,7 +130,7 @@ const SEO = ({
       <meta property="og:type" content={type} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={fullImageUrl} />
+      {fullImageUrl && <meta property="og:image" content={fullImageUrl} />}
       <meta property="og:url" content={fullUrl} />
       <meta property="og:site_name" content="SayBonjour" />
       <meta property="og:locale" content="en_US" />
@@ -152,7 +152,7 @@ const SEO = ({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={fullImageUrl} />
+      {fullImageUrl && <meta name="twitter:image" content={fullImageUrl} />}
       <meta name="twitter:site" content="@saybonjour" />
       <meta name="twitter:creator" content="@saybonjour" />
       

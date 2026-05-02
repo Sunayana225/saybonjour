@@ -334,7 +334,7 @@ const FranceMap = () => {
                   className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-warm-200 transition-colors self-end sm:self-auto"
                   aria-label="Close region details"
                 >
-                  <X size={20} className="sm:w-6 sm:h-6 text-gray-500" />
+                  <X size={20} className="sm:w-6 sm:h-6 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
 

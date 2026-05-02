@@ -158,6 +158,41 @@ Full documentation at `backend/DATABASE.md`:
 - `public/favicon.svg` — SVG favicon (burgundy background, B lettermark)
 - `index.html` references favicon.svg, site.webmanifest
 
+## Bug Fixes Applied (May 2026)
+### Double Padding Removed
+- Removed redundant `pt-16`/`pt-20` from 16 page root divs — `App.jsx`'s `<main className="pt-20">` already handles navbar offset.
+  - Fixed pages: Admin, BusinessFrench, Culture (×2), DailyChallenges, Favorites, InteractiveStory, NotFound, Profile, Progress, ReadingComprehension, SentenceBuilder, SlangFrench, StudyTools, TypingRace, WordMatch.
+
+### Framer Motion Opacity Fix
+- Changed `initial={{ opacity: 0 }}` to `initial={{ opacity: 1 }}` on below-fold `whileInView` elements in Home.jsx Features section and CTA section — prevents invisible text when IntersectionObserver fires slowly.
+
+### Internal Navigation Fixed
+- Replaced all `<a href="/...">` internal links with `<Link to="...">` in Home.jsx (footer, 9 links), Favorites.jsx (5 links).
+
+### Light Mode Text Contrast
+- Fixed bento section, category headers, section-gradient classes in index.css — replaced `@apply text-gray-*` with direct hex CSS values for reliable light mode contrast.
+
+### Dark Mode Coverage — Pages
+- Admin.jsx: Full dark mode (bg, text, form labels, inputs, selects, modals, toolbar, borders, kbd badges).
+- Conjugate.jsx: Search input, dropdown list, suggestion highlight text, active/hover states.
+- SlangFrench.jsx: Fallback register badge background/text.
+- FranceMap.jsx: Close button icon.
+- MemoryBoosters.jsx: Example label text.
+- PhraseOfTheDay.jsx: Pronunciation text.
+- StudyTools.jsx: Tab border.
+- Worksheets.jsx: Divider border.
+
+### Dark Mode Coverage — Components
+- AdminLogin.jsx: Full dark mode (bg, heading, subtitle, form inputs, CSRF text).
+- SpeakButton.jsx: Disabled state background.
+- Navbar.jsx: Search result description text.
+- SEO.jsx: Default image changed from `/og-image.jpg` to `null`; og:image and twitter:image meta tags are now conditionally rendered only when a valid image is provided (eliminates 404 errors).
+
+### OG Image 404 Fix
+- Removed non-existent `image="/og-home.jpg"` prop from Home.jsx SEO.
+- Removed non-existent `image="/og-resources.jpg"` prop from Resources.jsx SEO.
+- SEO component now skips `og:image`/`twitter:image` when no image is provided.
+
 ## Known Constraints
 - favicon.png files (32×32, apple-touch) not present — SVG fallback in use
 - `logo.png` referenced in Navbar but served from Replit environment (not in public/)
