@@ -517,8 +517,7 @@ const Home = () => {
               Comprehensive Learning Platform
             </motion.div>
             <motion.h2
-              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 px-2"
-              style={{ color: '#800020' }}
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-burgundy-600 dark:text-cream-50 mb-3 sm:mb-4 transition-colors duration-300 px-2"
               initial={{ opacity: 1, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -527,8 +526,7 @@ const Home = () => {
               Everything You Need to Master French
             </motion.h2>
             <motion.p
-              className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto px-2"
-              style={{ color: '#374151' }}
+              className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-gray-300 max-w-2xl mx-auto transition-colors duration-300 px-2"
               initial={{ opacity: 1, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
