@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Plus, Edit, Trash2, BookOpen, Brain, Save, X, Settings, FolderPlus, Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, FileText, Upload, Download, MessageCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, BookOpen, Brain, Save, X, Settings, FolderPlus, Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, FileText, Upload, Download, MessageCircle, Globe, Zap, Volume2, CheckCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import AdminLogin from '../components/AdminLogin'
 import SpeakButton from '../components/SpeakButton'
@@ -15,6 +15,16 @@ const Admin = () => {
   const [worksheets, setWorksheets] = useState([])
   const [phrases, setPhrases] = useState([])
   const [phraseSections, setPhraseSections] = useState([])
+  const [vocabWords, setVocabWords] = useState([])
+  const [dailyVocab, setDailyVocab] = useState([])
+  const [siteSettings, setSiteSettings] = useState({})
+  const [vocabForm, setVocabForm] = useState({ french: '', english: '', category: 'Custom', list_name: 'Custom Words', difficulty: 'Beginner', notes: '' })
+  const [dailyVocabForm, setDailyVocabForm] = useState({ french: '', english: '', category: 'General' })
+  const [showVocabForm, setShowVocabForm] = useState(false)
+  const [showDailyVocabForm, setShowDailyVocabForm] = useState(false)
+  const [editingVocab, setEditingVocab] = useState(null)
+  const [editingDailyVocab, setEditingDailyVocab] = useState(null)
+  const [settingsSaved, setSettingsSaved] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [showSectionForm, setShowSectionForm] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -98,14 +108,20 @@ const Admin = () => {
     }
   }, [isAuthenticated])
 
+  const getAdminToken = () => localStorage.getItem('adminToken')
+  const adminHeaders = () => ({ headers: { Authorization: `Bearer ${getAdminToken()}` } })
+
   const fetchData = async () => {
     try {
-      const [articlesRes, quizzesRes, sectionsRes, phrasesRes, phraseSectionsRes] = await Promise.all([
+      const [articlesRes, quizzesRes, sectionsRes, phrasesRes, phraseSectionsRes, vocabRes, dailyRes, settingsRes] = await Promise.all([
         axios.get('/api/articles'),
         axios.get('/api/quizzes'),
         axios.get('/api/sections'),
         axios.get('/api/phrases'),
-        axios.get('/api/phrase-sections')
+        axios.get('/api/phrase-sections'),
+        axios.get('/api/admin/vocab-words', adminHeaders()).catch(() => ({ data: [] })),
+        axios.get('/api/admin/daily-vocab', adminHeaders()).catch(() => ({ data: [] })),
+        axios.get('/api/site-settings').catch(() => ({ data: {} })),
       ])
 
       setArticles(articlesRes.data.flatMap(section =>
@@ -117,11 +133,82 @@ const Admin = () => {
       setSections(sectionsRes.data || [])
       setPhrases(phrasesRes.data || [])
       setPhraseSections(phraseSectionsRes.data || [])
+      setVocabWords(vocabRes.data || [])
+      setDailyVocab(dailyRes.data || [])
+      setSiteSettings(settingsRes.data || {})
     } catch (error) {
       console.error('Failed to fetch data:', error)
       // Set demo data for development
       setDemoData()
     }
+  }
+
+  // ─── Vocab words CRUD ────────────────────────────────────────────────────────
+  const handleVocabSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (editingVocab) {
+        const res = await axios.put(`/api/admin/vocab-words/${editingVocab.id}`, vocabForm, adminHeaders())
+        setVocabWords(prev => prev.map(w => w.id === editingVocab.id ? res.data : w))
+      } else {
+        const res = await axios.post('/api/admin/vocab-words', vocabForm, adminHeaders())
+        setVocabWords(prev => [res.data, ...prev])
+      }
+      setShowVocabForm(false)
+      setEditingVocab(null)
+      setVocabForm({ french: '', english: '', category: 'Custom', list_name: 'Custom Words', difficulty: 'Beginner', notes: '' })
+    } catch (err) { console.error(err) }
+  }
+
+  const handleEditVocab = (w) => {
+    setEditingVocab(w)
+    setVocabForm({ french: w.french, english: w.english, category: w.category, list_name: w.list_name, difficulty: w.difficulty, notes: w.notes || '' })
+    setShowVocabForm(true)
+  }
+
+  const handleDeleteVocab = async (id) => {
+    if (!confirm('Delete this word?')) return
+    await axios.delete(`/api/admin/vocab-words/${id}`, adminHeaders())
+    setVocabWords(prev => prev.filter(w => w.id !== id))
+  }
+
+  // ─── Daily vocab CRUD ─────────────────────────────────────────────────────────
+  const handleDailyVocabSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (editingDailyVocab) {
+        const res = await axios.put(`/api/admin/daily-vocab/${editingDailyVocab.id}`, dailyVocabForm, adminHeaders())
+        setDailyVocab(prev => prev.map(w => w.id === editingDailyVocab.id ? res.data : w))
+      } else {
+        const res = await axios.post('/api/admin/daily-vocab', dailyVocabForm, adminHeaders())
+        setDailyVocab(prev => [res.data, ...prev])
+      }
+      setShowDailyVocabForm(false)
+      setEditingDailyVocab(null)
+      setDailyVocabForm({ french: '', english: '', category: 'General' })
+    } catch (err) { console.error(err) }
+  }
+
+  const handleEditDailyVocab = (w) => {
+    setEditingDailyVocab(w)
+    setDailyVocabForm({ french: w.french, english: w.english, category: w.category })
+    setShowDailyVocabForm(true)
+  }
+
+  const handleDeleteDailyVocab = async (id) => {
+    if (!confirm('Delete this entry?')) return
+    await axios.delete(`/api/admin/daily-vocab/${id}`, adminHeaders())
+    setDailyVocab(prev => prev.filter(w => w.id !== id))
+  }
+
+  // ─── Site settings save ───────────────────────────────────────────────────────
+  const handleSaveSettings = async (e) => {
+    e.preventDefault()
+    try {
+      await axios.put('/api/admin/site-settings', siteSettings, adminHeaders())
+      setSettingsSaved(true)
+      setTimeout(() => setSettingsSaved(false), 2500)
+    } catch (err) { console.error(err) }
   }
 
   const setDemoData = () => {
@@ -679,21 +766,246 @@ const Admin = () => {
               <FolderPlus className="inline-block w-4 h-4 mr-2" />
               Phrase Sections
             </button>
+            <button
+              onClick={() => setActiveTab('vocabulary')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeTab === 'vocabulary'
+                  ? 'border-burgundy-500 text-burgundy-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Volume2 className="inline-block w-4 h-4 mr-2" />
+              Vocabulary
+            </button>
+            <button
+              onClick={() => setActiveTab('daily-vocab')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeTab === 'daily-vocab'
+                  ? 'border-burgundy-500 text-burgundy-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Zap className="inline-block w-4 h-4 mr-2" />
+              Daily Vocab
+            </button>
+            <button
+              onClick={() => setActiveTab('site-settings')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeTab === 'site-settings'
+                  ? 'border-burgundy-500 text-burgundy-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Globe className="inline-block w-4 h-4 mr-2" />
+              Site Settings
+            </button>
           </nav>
         </div>
 
-        {/* Add Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => activeTab === 'sections' ? setShowSectionForm(true) : setShowForm(true)}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <Plus size={16} />
-            <span>Add {activeTab === 'sections' ? 'Section' : activeTab === 'articles' ? 'Article' : activeTab === 'quizzes' ? 'Quiz' : activeTab === 'worksheets' ? 'Worksheet' : 'Phrase'}</span>
-          </button>
-        </div>
+        {/* Add Button — only for list-based tabs */}
+        {!['vocabulary', 'daily-vocab', 'site-settings'].includes(activeTab) && (
+          <div className="mb-6">
+            <button
+              onClick={() => activeTab === 'sections' ? setShowSectionForm(true) : setShowForm(true)}
+              className="btn-primary flex items-center space-x-2"
+            >
+              <Plus size={16} />
+              <span>Add {activeTab === 'sections' ? 'Section' : activeTab === 'articles' ? 'Article' : activeTab === 'quizzes' ? 'Quiz' : activeTab === 'worksheets' ? 'Worksheet' : 'Phrase'}</span>
+            </button>
+          </div>
+        )}
 
-        {/* Content List */}
+        {/* ─── Vocabulary Tab ─────────────────────────────────────────────────────── */}
+        {activeTab === 'vocabulary' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">{vocabWords.length} custom word{vocabWords.length !== 1 ? 's' : ''} added</p>
+              <button onClick={() => { setEditingVocab(null); setVocabForm({ french: '', english: '', category: 'Custom', list_name: 'Custom Words', difficulty: 'Beginner', notes: '' }); setShowVocabForm(true) }} className="btn-primary flex items-center space-x-2">
+                <Plus size={16} /><span>Add Word</span>
+              </button>
+            </div>
+            <div className="bg-amber-50 dark:bg-dark-warm-100 shadow rounded-md overflow-hidden">
+              {vocabWords.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">No custom vocabulary words yet. Add some to populate the Vocabulary page.</div>
+              ) : (
+                <ul className="divide-y divide-gray-200 dark:divide-dark-warm-50">
+                  {vocabWords.map(w => (
+                    <li key={w.id} className="px-4 py-3 flex items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="font-semibold text-gray-900 dark:text-cream-50">{w.french}</span>
+                          <span className="text-gray-400">→</span>
+                          <span className="text-gray-700 dark:text-gray-300">{w.english}</span>
+                          <span className={`px-2 py-0.5 text-xs rounded-full ${w.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' : w.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{w.difficulty}</span>
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">{w.list_name}</span>
+                          {!w.active && <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">Hidden</span>}
+                        </div>
+                        {w.notes && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{w.notes}</p>}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <SpeakButton text={w.french} lang="fr-FR" size={14} />
+                        <button onClick={() => handleEditVocab(w)} className="text-burgundy-600 hover:text-burgundy-700"><Edit size={15} /></button>
+                        <button onClick={() => handleDeleteVocab(w.id)} className="text-red-600 hover:text-red-700"><Trash2 size={15} /></button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {/* Vocab word form modal */}
+            {showVocabForm && (
+              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
+                <div className="relative top-10 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-amber-50 dark:bg-dark-warm-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-cream-50">{editingVocab ? 'Edit Word' : 'Add Vocabulary Word'}</h3>
+                    <button onClick={() => setShowVocabForm(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+                  </div>
+                  <form onSubmit={handleVocabSubmit} className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">French *</label>
+                        <input required value={vocabForm.french} onChange={e => setVocabForm(p => ({ ...p, french: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">English *</label>
+                        <input required value={vocabForm.english} onChange={e => setVocabForm(p => ({ ...p, english: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">List Name</label>
+                        <input value={vocabForm.list_name} onChange={e => setVocabForm(p => ({ ...p, list_name: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                        <input value={vocabForm.category} onChange={e => setVocabForm(p => ({ ...p, category: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Difficulty</label>
+                      <select value={vocabForm.difficulty} onChange={e => setVocabForm(p => ({ ...p, difficulty: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500">
+                        <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                      <input value={vocabForm.notes} onChange={e => setVocabForm(p => ({ ...p, notes: e.target.value }))} placeholder="Optional notes or example sentence" className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button type="button" onClick={() => setShowVocabForm(false)} className="btn-secondary">Cancel</button>
+                      <button type="submit" className="btn-primary flex items-center gap-2"><Save size={15} /> {editingVocab ? 'Update' : 'Add'} Word</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── Daily Vocab Tab ─────────────────────────────────────────────────────── */}
+        {activeTab === 'daily-vocab' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">{dailyVocab.length} daily vocab entr{dailyVocab.length !== 1 ? 'ies' : 'y'}</p>
+              <button onClick={() => { setEditingDailyVocab(null); setDailyVocabForm({ french: '', english: '', category: 'General' }); setShowDailyVocabForm(true) }} className="btn-primary flex items-center space-x-2">
+                <Plus size={16} /><span>Add Entry</span>
+              </button>
+            </div>
+            <div className="bg-amber-50 dark:bg-dark-warm-100 shadow rounded-md overflow-hidden">
+              {dailyVocab.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">No daily vocab entries yet. Add some to power the Daily Challenges vocab sprint.</div>
+              ) : (
+                <ul className="divide-y divide-gray-200 dark:divide-dark-warm-50">
+                  {dailyVocab.map(w => (
+                    <li key={w.id} className="px-4 py-3 flex items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="font-semibold text-gray-900 dark:text-cream-50">{w.french}</span>
+                          <span className="text-gray-400">→</span>
+                          <span className="text-gray-700 dark:text-gray-300">{w.english}</span>
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">{w.category}</span>
+                          {!w.active && <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">Hidden</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <SpeakButton text={w.french} lang="fr-FR" size={14} />
+                        <button onClick={() => handleEditDailyVocab(w)} className="text-burgundy-600 hover:text-burgundy-700"><Edit size={15} /></button>
+                        <button onClick={() => handleDeleteDailyVocab(w.id)} className="text-red-600 hover:text-red-700"><Trash2 size={15} /></button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {showDailyVocabForm && (
+              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
+                <div className="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-amber-50 dark:bg-dark-warm-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-cream-50">{editingDailyVocab ? 'Edit Entry' : 'Add Daily Vocab Entry'}</h3>
+                    <button onClick={() => setShowDailyVocabForm(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+                  </div>
+                  <form onSubmit={handleDailyVocabSubmit} className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">French *</label>
+                      <input required value={dailyVocabForm.french} onChange={e => setDailyVocabForm(p => ({ ...p, french: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">English *</label>
+                      <input required value={dailyVocabForm.english} onChange={e => setDailyVocabForm(p => ({ ...p, english: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                      <input value={dailyVocabForm.category} onChange={e => setDailyVocabForm(p => ({ ...p, category: e.target.value }))} placeholder="e.g. Food, Travel, Verbs…" className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500" />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button type="button" onClick={() => setShowDailyVocabForm(false)} className="btn-secondary">Cancel</button>
+                      <button type="submit" className="btn-primary flex items-center gap-2"><Save size={15} /> {editingDailyVocab ? 'Update' : 'Add'} Entry</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── Site Settings Tab ─────────────────────────────────────────────────── */}
+        {activeTab === 'site-settings' && (
+          <div className="bg-amber-50 dark:bg-dark-warm-100 shadow rounded-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-cream-50 mb-1">Site-Wide Settings</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Edit the hero section copy, site name, and other global text.</p>
+            <form onSubmit={handleSaveSettings} className="space-y-4 max-w-2xl">
+              {[
+                { key: 'site_name', label: 'Site Name', placeholder: 'SayBonjour!' },
+                { key: 'hero_title', label: 'Hero Title', placeholder: 'Say Bonjour to French!' },
+                { key: 'hero_subtitle', label: 'Hero Subtitle', placeholder: 'Master French with interactive lessons…', multiline: true },
+                { key: 'hero_cta_primary', label: 'Primary CTA Button', placeholder: 'Start Learning Free' },
+                { key: 'hero_cta_secondary', label: 'Secondary CTA Button', placeholder: 'Explore Lessons' },
+                { key: 'announcement_bar', label: 'Announcement Bar', placeholder: 'Leave blank to hide the bar', multiline: false },
+                { key: 'footer_tagline', label: 'Footer Tagline', placeholder: 'Learn French with joy…' },
+              ].map(({ key, label, placeholder, multiline }) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+                  {multiline ? (
+                    <textarea rows={3} value={siteSettings[key] || ''} onChange={e => setSiteSettings(p => ({ ...p, [key]: e.target.value }))} placeholder={placeholder} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500" />
+                  ) : (
+                    <input type="text" value={siteSettings[key] || ''} onChange={e => setSiteSettings(p => ({ ...p, [key]: e.target.value }))} placeholder={placeholder} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-warm-50 rounded-md bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none focus:ring-burgundy-500 focus:border-burgundy-500" />
+                  )}
+                </div>
+              ))}
+              <div className="flex items-center gap-3 pt-2">
+                <button type="submit" className="btn-primary flex items-center gap-2"><Save size={15} /> Save Settings</button>
+                {settingsSaved && (
+                  <span className="flex items-center gap-1 text-sm text-green-600 font-medium">
+                    <CheckCircle size={15} /> Saved successfully!
+                  </span>
+                )}
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Content List — hidden for new CMS tabs */}
+        {!['vocabulary', 'daily-vocab', 'site-settings'].includes(activeTab) && (
         <div className="bg-amber-50 dark:bg-dark-warm-100 shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
             {currentItems.map((item) => (
@@ -769,6 +1081,7 @@ const Admin = () => {
             ))}
           </ul>
         </div>
+        )}
 
         {/* Form Modal */}
         {showForm && (

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Laugh, BookOpen, ChevronDown, Shuffle, Info, ChevronRight } from 'lucide-react'
 import { frenchJokes, jokeCategories, jokeFacts } from '../data/jokesData'
 import SEO from '../components/SEO'
+import SpeakButton from '../components/SpeakButton'
 
 const CATEGORY_COLORS = {
   Puns:      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
@@ -132,9 +133,14 @@ export default function FrenchJokes() {
                     </div>
 
                     <div className="mb-2">
-                      <p className="text-base font-semibold text-gray-900 dark:text-white leading-relaxed">
-                        🇫🇷 {joke.setup}
-                      </p>
+                      <div className="flex items-start gap-2">
+                        <div onClick={e => e.stopPropagation()}>
+                          <SpeakButton text={joke.setup} size="sm" variant="ghost" />
+                        </div>
+                        <p className="text-base font-semibold text-gray-900 dark:text-white leading-relaxed">
+                          🇫🇷 {joke.setup}
+                        </p>
+                      </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-0.5">
                         🇬🇧 {joke.setupEn}
                       </p>
@@ -149,7 +155,12 @@ export default function FrenchJokes() {
                       {revealed[joke.id] && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                           <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <p className="text-lg font-bold text-gray-900 dark:text-white">🇫🇷 {joke.punchline}</p>
+                            <div className="flex items-start gap-2 mb-0.5">
+                              <div onClick={e => e.stopPropagation()}>
+                                <SpeakButton text={joke.punchline} size="sm" variant="ghost" />
+                              </div>
+                              <p className="text-lg font-bold text-gray-900 dark:text-white">🇫🇷 {joke.punchline}</p>
+                            </div>
                             <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-0.5">🇬🇧 {joke.punchlineEn}</p>
                             {joke.note && (
                               <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/40 rounded-xl p-3 flex gap-2">

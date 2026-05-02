@@ -4,6 +4,7 @@ import { BookOpen, ChevronRight, CheckCircle, XCircle, ArrowLeft } from 'lucide-
 import { readingPassages } from '../data/readingData'
 import { addXP } from '../utils/progress'
 import SEO from '../components/SEO'
+import SpeakButton from '../components/SpeakButton'
 
 const levelColors = {
   A1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
@@ -45,6 +46,10 @@ const PassageQuiz = ({ passage, onBack }) => {
           </span>
         </div>
         <div className="p-6">
+          <div className="flex items-start gap-2 mb-3">
+            <SpeakButton text={passage.text} size="sm" variant="ghost" />
+            <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">Listen to passage</span>
+          </div>
           <div className="prose max-w-none text-gray-800 dark:text-cream-50 text-sm leading-relaxed whitespace-pre-line font-serif">
             {passage.text}
           </div>
@@ -60,7 +65,8 @@ const PassageQuiz = ({ passage, onBack }) => {
           {showVocab && (
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
               {passage.vocab.map((v, i) => (
-                <div key={i} className="flex gap-2 text-sm">
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <SpeakButton text={v.word} size="sm" variant="ghost" />
                   <span className="font-bold text-amber-800 dark:text-amber-300 min-w-fit">{v.word}</span>
                   <span className="text-amber-700 dark:text-amber-400">— {v.def}</span>
                 </div>

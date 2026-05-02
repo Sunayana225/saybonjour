@@ -10,6 +10,7 @@ import { getFavoritesCounts } from '../utils/favorites'
 import { getProgress } from '../utils/progress'
 import { useTheme } from '../context/ThemeContext'
 import { useUser } from '../context/UserContext'
+import { useI18n } from '../context/i18nContext'
 
 const SEARCH_INDEX = [
   { label: 'Verb Conjugator', desc: 'All tenses for 25+ verbs', href: '/conjugate', category: 'Language Tools' },
@@ -134,6 +135,7 @@ const Navbar = () => {
   const [isResourcesOpen, setIsResourcesOpen] = useState(false)
   const [isLearnOpen, setIsLearnOpen] = useState(false)
   const [isUserOpen, setIsUserOpen] = useState(false)
+  const [isLangOpen, setIsLangOpen] = useState(false)
   const [xp, setXp] = useState(0)
   const [streak, setStreak] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
@@ -143,12 +145,14 @@ const Navbar = () => {
   const learnTimer = useRef(null)
   const resourcesTimer = useRef(null)
   const userMenuRef = useRef(null)
+  const langRef = useRef(null)
   const searchRef = useRef(null)
   const searchInputRef = useRef(null)
   const navigate = useNavigate()
 
   const { isDark, toggleTheme } = useTheme()
   const { user, logout } = useUser()
+  const { lang, setLang } = useI18n()
   const location = useLocation()
 
   useEffect(() => {
@@ -187,6 +191,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleClick = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setIsUserOpen(false)
+      if (langRef.current && !langRef.current.contains(e.target)) setIsLangOpen(false)
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setIsSearchOpen(false)
         setSearchQuery('')
@@ -475,6 +480,42 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
 
+              {/* Language selector */}
+              <div className="relative" ref={langRef}>
+                <button
+                  onClick={() => setIsLangOpen(o => !o)}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:bg-gray-800 transition-colors text-[11px] font-bold tracking-wider"
+                  title="Switch language"
+                >
+                  {lang.toUpperCase()}
+                </button>
+                <AnimatePresence>
+                  {isLangOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.12 }}
+                      className="absolute right-0 top-full mt-2 w-32 bg-gray-900 rounded-xl shadow-xl border border-gray-700 z-50 py-1 overflow-hidden"
+                    >
+                      {[
+                        { code: 'en', label: '🇬🇧 English' },
+                        { code: 'fr', label: '🇫🇷 Français' },
+                        { code: 'es', label: '🇪🇸 Español' },
+                      ].map(({ code, label }) => (
+                        <button
+                          key={code}
+                          onClick={() => { setLang(code); setIsLangOpen(false) }}
+                          className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${lang === code ? 'bg-burgundy-900/30 text-burgundy-300' : 'text-gray-300 hover:bg-gray-800'}`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Dark mode toggle */}
               <button
                 onClick={toggleTheme}
@@ -539,8 +580,15 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile right: theme toggle + hamburger */}
+            {/* Mobile right: lang + theme toggle + hamburger */}
             <div className="lg:hidden flex items-center gap-2">
+              <button
+                onClick={() => setLang(lang === 'en' ? 'fr' : lang === 'fr' ? 'es' : 'en')}
+                className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-[11px] font-bold tracking-wider"
+                title="Switch language"
+              >
+                {lang.toUpperCase()}
+              </button>
               <button onClick={toggleTheme}
                 className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}

@@ -4,6 +4,7 @@ import { Zap, CheckCircle, Clock, Star, Lock, RotateCcw, Send } from 'lucide-rea
 import { addXP, getProgress } from '../utils/progress'
 import { addWordToSRS } from '../utils/srs'
 import SEO from '../components/SEO'
+import SpeakButton from '../components/SpeakButton'
 
 const today = () => new Date().toISOString().split('T')[0]
 const STORE_KEY = 'saybonjour_daily'
@@ -185,9 +186,12 @@ const VocabChallenge = ({ words, onComplete, completed }) => {
             >
               {/* French word row */}
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-burgundy-800 dark:text-cream-50 text-sm">
-                  {word.french}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <SpeakButton text={word.french} size="sm" variant="ghost" />
+                  <span className="font-bold text-burgundy-800 dark:text-cream-50 text-sm">
+                    {word.french}
+                  </span>
+                </div>
                 {isSubmitted && (
                   <div className="flex items-center gap-1.5">
                     {res.isCorrect ? (

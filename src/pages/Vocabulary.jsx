@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getSRSDeck, getDueCards, addWordToSRS, updateCardAfterReview, removeFromSRS } from '../utils/srs'
 import { addXP, recordWordLearned } from '../utils/progress'
 import SEO from '../components/SEO'
+import SpeakButton from '../components/SpeakButton'
 
 const WORD_LISTS = {
   'Top 50 Essentials': [
@@ -319,6 +320,7 @@ const Vocabulary = () => {
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
+                          <SpeakButton text={word.french} size="sm" variant="ghost" />
                           <span className="font-bold text-burgundy-800 dark:text-cream-50 text-sm">{word.french}</span>
                           <span className="text-xs bg-cream-100 dark:bg-dark-warm-200 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">{word.category}</span>
                         </div>
@@ -375,6 +377,7 @@ const Vocabulary = () => {
                         <div key={card.id} className="bg-white dark:bg-dark-warm-100 rounded-xl border border-cream-200 dark:border-dark-warm-50 p-4 flex items-center justify-between shadow-sm">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
+                              <SpeakButton text={card.french} size="sm" variant="ghost" />
                               <span className="font-bold text-burgundy-800 dark:text-cream-50 text-sm">{card.french}</span>
                               <span className="text-xs bg-cream-100 dark:bg-dark-warm-200 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">{card.category}</span>
                               {(card.repetitions || 0) >= 3 && (

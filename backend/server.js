@@ -1024,6 +1024,192 @@ const initUsersTable = () => {
 
 try { initUsersTable() } catch (e) { console.error('Users table init error:', e.message) }
 
+// ─── CMS Tables ────────────────────────────────────────────────────────────────
+const initCMSTables = () => {
+  const db = new Database(path.join(__dirname, 'french_learning.db'))
+
+  db.prepare(`CREATE TABLE IF NOT EXISTS site_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`).run()
+
+  const defaults = [
+    { key: 'hero_title', value: 'Say Bonjour to French!' },
+    { key: 'hero_subtitle', value: 'Master French with interactive lessons, spaced repetition, and expert guidance — from A1 to C2.' },
+    { key: 'site_name', value: 'SayBonjour!' },
+    { key: 'hero_cta_primary', value: 'Start Learning Free' },
+    { key: 'hero_cta_secondary', value: 'Explore Lessons' },
+    { key: 'announcement_bar', value: '' },
+    { key: 'footer_tagline', value: 'Learn French with joy — one bonjour at a time.' },
+  ]
+  const upsert = db.prepare(`INSERT OR IGNORE INTO site_settings (key, value) VALUES (?, ?)`)
+  defaults.forEach(({ key, value }) => upsert.run(key, value))
+
+  db.prepare(`CREATE TABLE IF NOT EXISTS custom_vocab_words (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    french TEXT NOT NULL,
+    english TEXT NOT NULL,
+    category TEXT DEFAULT 'Custom',
+    list_name TEXT DEFAULT 'Custom Words',
+    difficulty TEXT DEFAULT 'Beginner',
+    notes TEXT DEFAULT '',
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`).run()
+
+  db.prepare(`CREATE TABLE IF NOT EXISTS custom_daily_vocab (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    french TEXT NOT NULL,
+    english TEXT NOT NULL,
+    category TEXT DEFAULT 'General',
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`).run()
+
+  db.close()
+}
+try { initCMSTables() } catch (e) { console.error('CMS tables init error:', e.message) }
+
+// ─── Site Settings API ────────────────────────────────────────────────────────
+app.get('/api/site-settings', (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const rows = db.prepare('SELECT key, value FROM site_settings').all()
+    db.close()
+    const settings = {}
+    rows.forEach(r => { settings[r.key] = r.value })
+    res.json(settings)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.put('/api/admin/site-settings', authenticateToken, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const upsert = db.prepare(`INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`)
+    const entries = Object.entries(req.body)
+    entries.forEach(([key, value]) => upsert.run(key, String(value)))
+    db.close()
+    res.json({ success: true, updated: entries.length })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+// ─── Custom Vocab Words API ───────────────────────────────────────────────────
+app.get('/api/admin/vocab-words', authenticateToken, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const words = db.prepare('SELECT * FROM custom_vocab_words ORDER BY created_at DESC').all()
+    db.close()
+    res.json(words)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.post('/api/admin/vocab-words', authenticateToken, (req, res) => {
+  try {
+    const { french, english, category = 'Custom', list_name = 'Custom Words', difficulty = 'Beginner', notes = '' } = req.body
+    if (!french || !english) return res.status(400).json({ error: 'French and English are required' })
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const result = db.prepare(`INSERT INTO custom_vocab_words (french, english, category, list_name, difficulty, notes) VALUES (?, ?, ?, ?, ?, ?)`).run(french, english, category, list_name, difficulty, notes)
+    const word = db.prepare('SELECT * FROM custom_vocab_words WHERE id = ?').get(result.lastInsertRowid)
+    db.close()
+    res.json(word)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.put('/api/admin/vocab-words/:id', authenticateToken, (req, res) => {
+  try {
+    const { french, english, category, list_name, difficulty, notes, active } = req.body
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare(`UPDATE custom_vocab_words SET french=?, english=?, category=?, list_name=?, difficulty=?, notes=?, active=? WHERE id=?`).run(french, english, category, list_name, difficulty, notes, active ?? 1, req.params.id)
+    const word = db.prepare('SELECT * FROM custom_vocab_words WHERE id = ?').get(req.params.id)
+    db.close()
+    res.json(word)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.delete('/api/admin/vocab-words/:id', authenticateToken, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare('DELETE FROM custom_vocab_words WHERE id = ?').run(req.params.id)
+    db.close()
+    res.json({ success: true })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+// ─── Custom Daily Vocab API ───────────────────────────────────────────────────
+app.get('/api/admin/daily-vocab', authenticateToken, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const words = db.prepare('SELECT * FROM custom_daily_vocab ORDER BY created_at DESC').all()
+    db.close()
+    res.json(words)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.get('/api/daily-vocab', (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const words = db.prepare('SELECT * FROM custom_daily_vocab WHERE active = 1 ORDER BY created_at DESC').all()
+    db.close()
+    res.json(words)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.post('/api/admin/daily-vocab', authenticateToken, (req, res) => {
+  try {
+    const { french, english, category = 'General' } = req.body
+    if (!french || !english) return res.status(400).json({ error: 'French and English are required' })
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const result = db.prepare(`INSERT INTO custom_daily_vocab (french, english, category) VALUES (?, ?, ?)`).run(french, english, category)
+    const word = db.prepare('SELECT * FROM custom_daily_vocab WHERE id = ?').get(result.lastInsertRowid)
+    db.close()
+    res.json(word)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.put('/api/admin/daily-vocab/:id', authenticateToken, (req, res) => {
+  try {
+    const { french, english, category, active } = req.body
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare(`UPDATE custom_daily_vocab SET french=?, english=?, category=?, active=? WHERE id=?`).run(french, english, category, active ?? 1, req.params.id)
+    const word = db.prepare('SELECT * FROM custom_daily_vocab WHERE id = ?').get(req.params.id)
+    db.close()
+    res.json(word)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.delete('/api/admin/daily-vocab/:id', authenticateToken, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare('DELETE FROM custom_daily_vocab WHERE id = ?').run(req.params.id)
+    db.close()
+    res.json({ success: true })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
 const hashUserPassword = (password) =>
   crypto.pbkdf2Sync(password, 'user_salt_v1', 10000, 64, 'sha512').toString('hex')
 

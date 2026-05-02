@@ -43,6 +43,24 @@ const STRINGS = {
     confirmPassword: 'Confirmer le mot de passe', uploadPhoto: 'Changer la photo',
     resumeLearning: 'Reprendre', continueWhere: 'Continuez là où vous en étiez',
     syncProgress: 'Synchroniser', lastSynced: 'Dernière sync',
+  },
+  es: {
+    home: 'Inicio', quizzes: 'Pruebas', resources: 'Recursos', progress: 'Progreso',
+    favorites: 'Favoritos', signIn: 'Iniciar sesión', signOut: 'Cerrar sesión', profile: 'Mi perfil',
+    settings: 'Ajustes', learn: 'Aprender', darkMode: 'Modo oscuro', language: 'Idioma',
+    learningPath: 'Ruta de aprendizaje', studyHistory: 'Historial', accountSettings: 'Configuración de cuenta',
+    saveChanges: 'Guardar cambios', cancel: 'Cancelar', edit: 'Editar', deleteAccount: 'Eliminar cuenta',
+    exportData: 'Exportar mis datos', notifications: 'Notificaciones', accessibility: 'Accesibilidad',
+    security: 'Seguridad', data: 'Datos y privacidad', preferences: 'Preferencias',
+    bio: 'Sobre mí', learningGoal: 'Objetivo', cefrLevel: 'Nivel MCER',
+    dailyGoal: 'Meta diaria', weeklyGoal: 'Meta semanal', studyReminders: 'Recordatorios',
+    learningStyle: 'Estilo de aprendizaje', visual: 'Visual', audio: 'Audio', reading: 'Lectura',
+    fontSize: 'Tamaño de fuente', dyslexiaFont: 'Fuente para dislexia', highContrast: 'Alto contraste',
+    reduceMotion: 'Reducir animaciones', changePassword: 'Cambiar contraseña',
+    currentPassword: 'Contraseña actual', newPassword: 'Nueva contraseña',
+    confirmPassword: 'Confirmar contraseña', uploadPhoto: 'Subir foto',
+    resumeLearning: 'Continuar aprendiendo', continueWhere: 'Continúa donde lo dejaste',
+    syncProgress: 'Sincronizar', lastSynced: 'Última sincronización',
   }
 }
 
@@ -55,7 +73,7 @@ export const I18nProvider = ({ children }) => {
   }, [lang])
 
   const t = (key) => STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key
-  const toggleLang = () => setLang(l => l === 'en' ? 'fr' : 'en')
+  const toggleLang = () => setLang(l => l === 'en' ? 'fr' : l === 'fr' ? 'es' : 'en')
 
   return (
     <I18nContext.Provider value={{ lang, setLang, t, toggleLang }}>
