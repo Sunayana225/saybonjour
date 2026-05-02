@@ -4,6 +4,12 @@ import { BookOpen, RotateCcw, ChevronRight, ArrowLeft, Star } from 'lucide-react
 import { stories } from '../data/storyData'
 import { addXP } from '../utils/progress'
 import SEO from '../components/SEO'
+import SpeakButton from '../components/SpeakButton'
+
+const extractFrench = (agentLine) => {
+  const match = agentLine?.match(/"([^"]+)"/)
+  return match ? match[1] : agentLine
+}
 
 const LEVEL_COLORS = {
   A1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
@@ -82,8 +88,15 @@ const StoryPlayer = ({ story, onBack }) => {
               <p className="text-gray-700 dark:text-cream-100 mb-4 text-sm leading-relaxed">{node.text}</p>
 
               {node.agent && (
-                <div className="bg-cream-50 dark:bg-dark-warm-200 rounded-xl px-4 py-3 mb-4 border-l-4 border-burgundy-400">
-                  <p className="text-gray-800 dark:text-cream-50 text-sm font-medium italic">{node.agent}</p>
+                <div className="bg-cream-50 dark:bg-dark-warm-200 rounded-xl px-4 py-3 mb-4 border-l-4 border-burgundy-400 flex items-center justify-between gap-3">
+                  <p className="text-gray-800 dark:text-cream-50 text-sm font-medium italic flex-1">{node.agent}</p>
+                  <div onClick={e => e.stopPropagation()}>
+                    <SpeakButton
+                      text={extractFrench(node.agent)}
+                      size="sm"
+                      variant="ghost"
+                    />
+                  </div>
                 </div>
               )}
 
