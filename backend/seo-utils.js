@@ -91,13 +91,12 @@ export const generateRobotsTxt = () => {
   return `User-agent: *
 Allow: /
 
-# Private / user-specific areas — no indexing needed
+# Private / user-specific areas
 Disallow: /admin
 Disallow: /api/
 Disallow: /settings
 Disallow: /profile
 Disallow: /history
-Disallow: /learning-path
 Disallow: /favorites
 Disallow: /progress
 Disallow: /login

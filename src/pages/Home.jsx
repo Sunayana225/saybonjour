@@ -61,8 +61,8 @@ const Home = () => {
   return (
     <>
       <SEO
-        title="SayBonjour - Learn French Online | Interactive French Learning Platform"
-        description="Master French with SayBonjour - the comprehensive online French learning platform. Interactive lessons, quizzes, cultural insights, media recommendations, and more. Start your French journey today!"
+        title="SayBonjour! — Learn French Online | Interactive French Learning Platform"
+        description="Master French with SayBonjour! — interactive lessons, grammar guides, vocabulary SRS, quizzes, cultural insights, and daily challenges. Free French learning for every level."
         keywords="learn french, french lessons, french language, online french course, french grammar, french vocabulary, french culture, french learning platform, interactive french, french quizzes, french media, french pronunciation"
         url="/"
         type="website"

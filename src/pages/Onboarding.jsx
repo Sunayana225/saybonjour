@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, CheckCircle, Eye, Mic, BookOpen } from 'lucide-react'
+import SEO from '../components/SEO'
 import { useUser } from '../context/UserContext'
 import { getProgress, saveProgress } from '../utils/progress'
 
@@ -94,6 +95,7 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-burgundy-800 via-burgundy-700 to-burgundy-600 flex items-center justify-center px-4 py-20">
+      <SEO title="Get Started with French | SayBonjour!" url="/onboarding" noindex />
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <div className="text-4xl mb-3">🇫🇷</div>

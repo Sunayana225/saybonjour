@@ -135,7 +135,12 @@ const ReadingComprehension = () => {
 
   return (
     <>
-      <SEO title="French Reading Comprehension | SayBonjour" description="Improve your French reading comprehension with graded passages from A1 to B2." url="/reading" />
+      <SEO
+        title="French Reading Comprehension — Graded Passages A1 to B2 | SayBonjour!"
+        description="Improve your French reading with graded texts from A1 beginner to B2 upper-intermediate. Each passage includes comprehension questions, vocabulary highlights, and audio support."
+        keywords="french reading comprehension, french passages, graded french texts, french A1 A2 B1 B2, learn to read french, DELF reading practice, french reading exercises"
+        url="/reading"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-4xl mx-auto text-center">

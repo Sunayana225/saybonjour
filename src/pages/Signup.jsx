@@ -53,7 +53,7 @@ export default function Signup() {
 
   return (
     <>
-      <SEO title="Create Account | SayBonjour" url="/signup" />
+      <SEO title="Create a Free Account | SayBonjour!" url="/signup" noindex />
       <div className="min-h-screen flex bg-white dark:bg-dark-warm-100">
 
         {/* ── Left panel: AI illustration ── */}

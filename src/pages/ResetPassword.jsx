@@ -55,7 +55,7 @@ export default function ResetPassword() {
 
   return (
     <>
-      <SEO title="Reset Password | SayBonjour" url="/reset-password" />
+      <SEO title="Reset Password | SayBonjour!" url="/reset-password" noindex />
       <div className="min-h-screen flex bg-cream-50 dark:bg-dark-warm-300">
 
         {/* Left panel */}

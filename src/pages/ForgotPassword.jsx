@@ -27,7 +27,7 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <SEO title="Forgot Password | SayBonjour" url="/forgot-password" />
+      <SEO title="Forgot Password | SayBonjour!" url="/forgot-password" noindex />
       <div className="min-h-screen flex bg-cream-50 dark:bg-dark-warm-300">
 
         {/* Left panel */}

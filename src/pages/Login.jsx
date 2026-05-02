@@ -51,7 +51,7 @@ export default function Login() {
 
   return (
     <>
-      <SEO title="Log In | SayBonjour" url="/login" />
+      <SEO title="Log In | SayBonjour!" url="/login" noindex />
       <div className="min-h-screen flex bg-white dark:bg-dark-warm-100">
 
         {/* ── Left panel: AI illustration ── */}

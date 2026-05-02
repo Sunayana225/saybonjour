@@ -83,7 +83,16 @@ const Quizzes = () => {
 
   return (
     <>
-      <SEO title={selectedQuiz ? `${selectedQuiz.title} | French Quiz` : "French Quizzes | SayBonjour"} description="Test your French knowledge with interactive quizzes." keywords="french quizzes, french tests" url="/quizzes" />
+      <SEO
+        title={selectedQuiz ? `${selectedQuiz.title} | French Quiz | SayBonjour!` : "French Quizzes — Test Your Knowledge | SayBonjour!"}
+        description={selectedQuiz
+          ? `Take the "${selectedQuiz.title}" quiz and test your French. Instant feedback, score tracking, and explanations for every answer.`
+          : "Test your French with hundreds of interactive quizzes covering grammar, vocabulary, verb conjugations, listening, and culture. Track your scores and improve over time."
+        }
+        keywords="french quizzes, french grammar quiz, french vocabulary quiz, french conjugation quiz, online french test, french language test, DELF practice"
+        url="/quizzes"
+        type={selectedQuiz ? "course" : "website"}
+      />
       <div className="flex h-[calc(100vh-5rem)] bg-gray-50 dark:bg-dark-warm-300">
         <ContentSidebar sections={sections} selectedSection={selectedSection} selectedItem={selectedItem}
           onSectionSelect={setSelectedSection} onItemSelect={handleItemSelect}
