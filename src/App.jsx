@@ -4,6 +4,11 @@ import { HelmetProvider } from 'react-helmet-async'
 import { AuthProvider } from './context/AuthContext'
 import { UserProvider } from './context/UserContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { AccessibilityProvider } from './context/AccessibilityContext'
+import { I18nProvider } from './context/i18nContext'
+import AccountSettings from './pages/AccountSettings'
+import LearningPath from './pages/LearningPath'
+import StudyHistory from './pages/StudyHistory'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Resources from './pages/Resources'
@@ -57,6 +62,8 @@ function App() {
   return (
     <HelmetProvider>
       <ThemeProvider>
+        <AccessibilityProvider>
+          <I18nProvider>
         <AuthProvider>
           <UserProvider>
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -96,6 +103,9 @@ function App() {
                     <Route path="/travel-french" element={<TravelFrench />} />
                     <Route path="/jokes" element={<FrenchJokes />} />
                     <Route path="/writing" element={<WritingTemplates />} />
+                    <Route path="/learning-path" element={<LearningPath />} />
+                    <Route path="/history" element={<StudyHistory />} />
+                    <Route path="/settings" element={<AccountSettings />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
@@ -103,6 +113,8 @@ function App() {
             </Router>
           </UserProvider>
         </AuthProvider>
+          </I18nProvider>
+        </AccessibilityProvider>
       </ThemeProvider>
     </HelmetProvider>
   )

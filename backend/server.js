@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import { body, validationResult } from 'express-validator'
 import morgan from 'morgan'
+import multer from 'multer'
 import {
   generateSitemap,
   generateRobotsTxt,
@@ -112,6 +113,26 @@ app.use('/api', generalLimiter)
 // Request size limits and body parsing
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// ─── File Uploads (Multer) ────────────────────────────────────────────────────
+const UPLOADS_DIR = path.join(__dirname, 'uploads', 'avatars')
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true })
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const ext = ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(path.extname(file.originalname).toLowerCase())
+      ? path.extname(file.originalname).toLowerCase() : '.jpg'
+    cb(null, `avatar_${req.userId || Date.now()}_${Date.now()}${ext}`)
+  }
+})
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    cb(null, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.mimetype))
+  }
+})
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 // CORS configuration
 app.use(cors({
@@ -953,6 +974,45 @@ const initUsersTable = () => {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run()
+
+  const addCol = (col, type) => {
+    try { db.prepare(`ALTER TABLE users ADD COLUMN ${col} ${type}`).run() } catch {}
+  }
+  addCol('avatar_url', 'TEXT DEFAULT NULL')
+  addCol('bio', 'TEXT DEFAULT NULL')
+  addCol('learning_prefs', 'TEXT DEFAULT NULL')
+  addCol('notification_prefs', 'TEXT DEFAULT NULL')
+  addCol('ui_language', "TEXT DEFAULT 'en'")
+  addCol('accessibility', 'TEXT DEFAULT NULL')
+  addCol('weekly_goal_xp', 'INTEGER DEFAULT 500')
+  addCol('oauth_provider', 'TEXT DEFAULT NULL')
+  addCol('oauth_id', 'TEXT DEFAULT NULL')
+  addCol('progress_data', 'TEXT DEFAULT NULL')
+
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS study_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT NULL,
+      xp INTEGER DEFAULT 0,
+      metadata TEXT DEFAULT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `).run()
+
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER UNIQUE NOT NULL,
+      session_data TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `).run()
+
   db.close()
 }
 
@@ -1025,26 +1085,221 @@ app.post('/api/users/login', (req, res) => {
 app.get('/api/users/profile', authenticateUser, (req, res) => {
   try {
     const db = new Database(path.join(__dirname, 'french_learning.db'))
-    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, created_at FROM users WHERE id = ?').get(req.userId)
+    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, avatar_url, bio, learning_prefs, notification_prefs, ui_language, accessibility, weekly_goal_xp, oauth_provider, created_at FROM users WHERE id = ?').get(req.userId)
     db.close()
     if (!user) return res.status(404).json({ message: 'User not found' })
-    res.json({ user })
+    const parseJson = (v) => { try { return v ? JSON.parse(v) : null } catch { return null } }
+    res.json({ user: { ...user, learning_prefs: parseJson(user.learning_prefs), notification_prefs: parseJson(user.notification_prefs), accessibility: parseJson(user.accessibility) } })
   } catch (e) {
     res.status(500).json({ message: 'Failed to fetch profile' })
   }
 })
 
 app.put('/api/users/profile', authenticateUser, (req, res) => {
-  const { name, goal, cefr_level, daily_goal_mins } = req.body
+  const { name, goal, cefr_level, daily_goal_mins, bio, avatar_url, learning_prefs, notification_prefs, ui_language, accessibility, weekly_goal_xp } = req.body
   try {
     const db = new Database(path.join(__dirname, 'french_learning.db'))
-    db.prepare(`UPDATE users SET name = COALESCE(?, name), goal = COALESCE(?, goal), cefr_level = COALESCE(?, cefr_level), daily_goal_mins = COALESCE(?, daily_goal_mins), updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
-      .run(name || null, goal || null, cefr_level || null, daily_goal_mins || null, req.userId)
-    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, created_at FROM users WHERE id = ?').get(req.userId)
+    const stringify = (v) => (v && typeof v === 'object') ? JSON.stringify(v) : (v || null)
+    db.prepare(`UPDATE users SET
+      name = COALESCE(?, name),
+      goal = COALESCE(?, goal),
+      cefr_level = COALESCE(?, cefr_level),
+      daily_goal_mins = COALESCE(?, daily_goal_mins),
+      bio = COALESCE(?, bio),
+      avatar_url = COALESCE(?, avatar_url),
+      learning_prefs = COALESCE(?, learning_prefs),
+      notification_prefs = COALESCE(?, notification_prefs),
+      ui_language = COALESCE(?, ui_language),
+      accessibility = COALESCE(?, accessibility),
+      weekly_goal_xp = COALESCE(?, weekly_goal_xp),
+      updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
+      .run(name || null, goal || null, cefr_level || null, daily_goal_mins || null,
+           bio || null, avatar_url || null, stringify(learning_prefs), stringify(notification_prefs),
+           ui_language || null, stringify(accessibility), weekly_goal_xp || null, req.userId)
+    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, avatar_url, bio, learning_prefs, notification_prefs, ui_language, accessibility, weekly_goal_xp, oauth_provider, created_at FROM users WHERE id = ?').get(req.userId)
     db.close()
-    res.json({ user })
+    const parseJson = (v) => { try { return v ? JSON.parse(v) : null } catch { return null } }
+    res.json({ user: { ...user, learning_prefs: parseJson(user.learning_prefs), notification_prefs: parseJson(user.notification_prefs), accessibility: parseJson(user.accessibility) } })
   } catch (e) {
+    console.error('Profile update error:', e)
     res.status(500).json({ message: 'Failed to update profile' })
+  }
+})
+
+// ─── Extended User Account Routes ────────────────────────────────────────────
+
+app.post('/api/users/upload-avatar', authenticateUser, avatarUpload.single('avatar'), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: 'No image file provided or unsupported format' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`
+    db.prepare('UPDATE users SET avatar_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(avatarUrl, req.userId)
+    db.close()
+    res.json({ avatar_url: avatarUrl })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to save avatar' })
+  }
+})
+
+app.put('/api/users/change-password', authenticateUser, (req, res) => {
+  const { currentPassword, newPassword } = req.body
+  if (!currentPassword || !newPassword || newPassword.length < 6)
+    return res.status(400).json({ message: 'Invalid password data' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const user = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(req.userId)
+    if (!user) { db.close(); return res.status(404).json({ message: 'User not found' }) }
+    let valid = false
+    try { valid = verifyUserPassword(currentPassword, user.password_hash) } catch {}
+    if (!valid) { db.close(); return res.status(401).json({ message: 'Current password is incorrect' }) }
+    const newHash = hashUserPassword(newPassword)
+    db.prepare('UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(newHash, req.userId)
+    db.close()
+    res.json({ message: 'Password changed successfully' })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to change password' })
+  }
+})
+
+app.delete('/api/users/account', authenticateUser, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare('DELETE FROM study_history WHERE user_id = ?').run(req.userId)
+    db.prepare('DELETE FROM user_sessions WHERE user_id = ?').run(req.userId)
+    db.prepare('DELETE FROM users WHERE id = ?').run(req.userId)
+    db.close()
+    res.json({ message: 'Account deleted successfully' })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to delete account' })
+  }
+})
+
+app.get('/api/users/export', authenticateUser, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, avatar_url, bio, learning_prefs, ui_language, weekly_goal_xp, created_at FROM users WHERE id = ?').get(req.userId)
+    const history = db.prepare('SELECT type, title, description, xp, created_at FROM study_history WHERE user_id = ? ORDER BY created_at DESC').all(req.userId)
+    const session = db.prepare('SELECT session_data, updated_at FROM user_sessions WHERE user_id = ?').get(req.userId)
+    db.close()
+    const parseJson = (v) => { try { return v ? JSON.parse(v) : null } catch { return null } }
+    res.json({
+      exported_at: new Date().toISOString(),
+      profile: { ...user, learning_prefs: parseJson(user.learning_prefs) },
+      study_history: history,
+      last_session: session ? { ...session, session_data: parseJson(session.session_data) } : null,
+    })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to export data' })
+  }
+})
+
+app.get('/api/users/study-history', authenticateUser, (req, res) => {
+  const limit = Math.min(200, parseInt(req.query.limit || '50'))
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const history = db.prepare('SELECT id, type, title, description, xp, metadata, created_at FROM study_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?').all(req.userId, limit)
+    db.close()
+    res.json({ history: history.map(h => ({ ...h, metadata: h.metadata ? JSON.parse(h.metadata) : null })) })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to fetch study history' })
+  }
+})
+
+app.post('/api/users/study-history', authenticateUser, (req, res) => {
+  const { type, title, desc, xp, metadata } = req.body
+  if (!type || !title) return res.status(400).json({ message: 'type and title required' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare('INSERT INTO study_history (user_id, type, title, description, xp, metadata) VALUES (?, ?, ?, ?, ?, ?)')
+      .run(req.userId, type, title, desc || null, xp || 0, metadata ? JSON.stringify(metadata) : null)
+    db.close()
+    res.json({ message: 'Event recorded' })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to record event' })
+  }
+})
+
+app.get('/api/users/session', authenticateUser, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const row = db.prepare('SELECT session_data, updated_at FROM user_sessions WHERE user_id = ?').get(req.userId)
+    db.close()
+    if (!row) return res.json({ session: null })
+    res.json({ session: JSON.parse(row.session_data), updated_at: row.updated_at })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to fetch session' })
+  }
+})
+
+app.put('/api/users/session', authenticateUser, (req, res) => {
+  const { session_data } = req.body
+  if (!session_data) return res.status(400).json({ message: 'session_data required' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare('INSERT OR REPLACE INTO user_sessions (user_id, session_data, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)')
+      .run(req.userId, JSON.stringify(session_data))
+    db.close()
+    res.json({ message: 'Session saved' })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to save session' })
+  }
+})
+
+app.get('/api/users/progress-sync', authenticateUser, (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const row = db.prepare('SELECT progress_data FROM users WHERE id = ?').get(req.userId)
+    db.close()
+    const progress = row?.progress_data ? JSON.parse(row.progress_data) : null
+    res.json({ progress })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to fetch progress' })
+  }
+})
+
+app.put('/api/users/progress-sync', authenticateUser, (req, res) => {
+  const { progress } = req.body
+  if (!progress) return res.status(400).json({ message: 'progress required' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    db.prepare('UPDATE users SET progress_data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      .run(JSON.stringify(progress), req.userId)
+    db.close()
+    res.json({ message: 'Progress synced' })
+  } catch (e) {
+    res.status(500).json({ message: 'Failed to sync progress' })
+  }
+})
+
+app.post('/api/users/auth/google', async (req, res) => {
+  const { credential } = req.body
+  if (!credential) return res.status(400).json({ message: 'Google credential required' })
+  const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
+  if (!GOOGLE_CLIENT_ID) return res.status(503).json({ message: 'Google OAuth not configured on this server' })
+  try {
+    const tokenRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`)
+    const payload = await tokenRes.json()
+    if (payload.error || !payload.email_verified || payload.email_verified === 'false')
+      return res.status(401).json({ message: 'Invalid Google token' })
+    if (GOOGLE_CLIENT_ID && payload.aud !== GOOGLE_CLIENT_ID)
+      return res.status(401).json({ message: 'Token audience mismatch' })
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(payload.email.toLowerCase())
+    if (!user) {
+      const result = db.prepare('INSERT INTO users (name, email, password_hash, oauth_provider, oauth_id, avatar_url) VALUES (?, ?, ?, ?, ?, ?)')
+        .run(payload.name || payload.email.split('@')[0], payload.email.toLowerCase(), 'OAUTH_GOOGLE', 'google', payload.sub, payload.picture || null)
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid)
+    } else if (!user.oauth_provider) {
+      db.prepare('UPDATE users SET oauth_provider = ?, oauth_id = ? WHERE id = ?').run('google', payload.sub, user.id)
+    }
+    db.close()
+    const token = jwt.sign({ userId: user.id }, USER_JWT_SECRET, { expiresIn: '30d' })
+    const { password_hash, progress_data, ...safeUser } = user
+    const parseJson = (v) => { try { return v ? JSON.parse(v) : null } catch { return null } }
+    res.json({ token, user: { ...safeUser, learning_prefs: parseJson(safeUser.learning_prefs), accessibility: parseJson(safeUser.accessibility) } })
+  } catch (e) {
+    console.error('Google auth error:', e)
+    res.status(500).json({ message: 'Google authentication failed' })
   }
 })
 

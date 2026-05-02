@@ -553,3 +553,49 @@
     }
   }
 }
+
+/* ── Accessibility: Dyslexia-Friendly Font ── */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: normal;
+}
+
+.dyslexia-font,
+.dyslexia-font * {
+  font-family: 'OpenDyslexic', 'Arial', sans-serif !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.7;
+}
+
+/* ── Accessibility: High Contrast ── */
+.high-contrast {
+  filter: contrast(1.3);
+}
+
+.high-contrast .bg-cream-50,
+.high-contrast body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .dark\:bg-dark-warm-300 {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* ── Accessibility: Reduce Motion ── */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── Resume Session Banner ── */
+.resume-banner {
+  @apply fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white dark:bg-dark-warm-100 shadow-xl rounded-2xl px-5 py-3 flex items-center gap-3 border border-gray-100 dark:border-dark-warm-50 text-sm font-medium;
+}

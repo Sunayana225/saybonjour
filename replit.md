@@ -30,25 +30,30 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 
 ## Key Files
 - `vite.config.js` - Vite config with proxy to backend at localhost:3001
-- `backend/server.js` - Express server; user routes added at line ~941
+- `backend/server.js` - Express server; user routes at line ~941 (1300+ lines)
 - `backend/DATABASE.md` - Full database and API documentation
-- `src/App.jsx` - Main React app: ThemeProvider → AuthProvider → UserProvider → Router (31 routes)
+- `src/App.jsx` - Main React app: HelmetProvider → ThemeProvider → AccessibilityProvider → I18nProvider → AuthProvider → UserProvider → Router (34 routes)
 - `src/context/ThemeContext.jsx` - Dark mode toggle; persists to localStorage; adds `dark` class to `<html>`
-- `src/context/UserContext.jsx` - Regular user auth (separate from admin AuthContext)
+- `src/context/UserContext.jsx` - Full user auth (register, login, google OAuth, avatar upload, password change, delete, export, study history, sessions, progress sync)
 - `src/context/AuthContext.jsx` - Admin-only JWT auth (unchanged)
+- `src/context/AccessibilityContext.jsx` - Font size, dyslexia font, high contrast, reduce motion (localStorage-backed, CSS class toggling on `<html>`)
+- `src/context/i18nContext.jsx` - EN/FR toggle with full strings dictionary and `t(key)` helper
 - `src/utils/progress.js` - XP, streaks, levels, badges, rank tiers, XP multipliers, daily login reward
 - `src/utils/srs.js` - SM-2 spaced repetition algorithm
 
-## Pages (31 routes)
+## Pages (34 routes)
 
 ### Core
 - `/` - Home (hero, features, animated background)
-- `/login` - User login
-- `/signup` - User registration
-- `/profile` - User profile, stats, badges, edit form
-- `/onboarding` - 3-step skill assessment (goal → daily time → 8-question CEFR quiz)
+- `/login` - User login + Google OAuth + Apple (coming soon)
+- `/signup` - User registration + Google OAuth + Apple (coming soon)
+- `/profile` - 3-tab profile: Overview/Edit/Learning Style, avatar upload, bio, badges
+- `/onboarding` - 4-step skill assessment (goal → daily time → learning style → CEFR quiz)
 - `/progress` - Learning Dashboard (XP bar, heatmap, skill breakdown, rank, badges)
 - `/favorites` - Saved favorites
+- `/learning-path` - CEFR personalised learning path (A1→C2, expandable modules)
+- `/history` - Study history: activity heatmap + timeline, session stats, filter by type
+- `/settings` - Account Settings: 5 tabs (Preferences, Notifications, Accessibility, Security, Data & Privacy)
 - `*` - 404 Not Found page
 
 ### Learn
@@ -86,8 +91,39 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 ### User Accounts (`/api/users/*`)
 - `POST /api/users/register` — creates account, returns JWT (30d)
 - `POST /api/users/login` — validates credentials, returns JWT (30d)
+- `POST /api/users/google` — Google OAuth via GSI ID token; creates or fetches account
 - `GET /api/users/profile` — authenticated via `X-User-Token` header
-- `PUT /api/users/profile` — update name, goal, cefr_level, daily_goal_mins
+- `PUT /api/users/profile` — update name, goal, cefr_level, daily_goal_mins, bio, learning_style, study_reminder, weekly_xp_goal, notification_prefs, onboarding_complete
+- `POST /api/users/upload-avatar` — multipart/form-data avatar upload (multer); stored in `backend/uploads/`
+- `POST /api/users/change-password` — PBKDF2 verify + re-hash
+- `DELETE /api/users/delete` — full account deletion (user + history + sessions)
+- `GET /api/users/export` — returns all user data as JSON (GDPR export)
+- `GET /api/users/study-history` — fetch all study events for user
+- `POST /api/users/study-history` — record a study event (type, xp, duration, topic)
+- `GET /api/users/session` — fetch latest saved session state
+- `PUT /api/users/session` — save session state (page, progress, timestamp)
+- `GET /api/users/progress-sync` — fetch synced progress blob
+- `PUT /api/users/progress-sync` — push progress blob (device sync)
+
+### DB Tables (SQLite)
+- `users` — 20+ columns incl. bio, avatar_url, learning_style, study_reminder, weekly_xp_goal, notification_prefs, onboarding_complete, google_id
+- `study_history` — id, user_id, type, xp_gained, duration_mins, topic, created_at
+- `user_sessions` — id, user_id, page, progress_data, updated_at
+
+### Accessibility (`/settings` → Accessibility tab + AccessibilityContext)
+- **Font size**: small / medium / large / x-large — CSS `font-size` on `<html>` root
+- **Dyslexia font**: OpenDyslexic font loaded from CDN; `.dyslexia-font` class on `<html>`
+- **High contrast**: `.high-contrast` class + CSS filter
+- **Reduce motion**: `.reduce-motion` class; disables all CSS animations/transitions
+
+### Internationalisation (I18nContext)
+- EN / FR toggle; full strings dictionary in `src/context/i18nContext.jsx`
+- `useI18n()` hook returns `{ t, lang, toggle }` — `t('key')` returns translated string
+
+### Google OAuth
+- Frontend: Google GSI script loaded in `index.html`; uses `window.google.accounts.id.prompt()` One Tap
+- Backend: `POST /api/users/google` verifies ID token via `https://oauth2.googleapis.com/tokeninfo`
+- Set `VITE_GOOGLE_CLIENT_ID` env var to enable; graceful error if not configured
 
 ### Progress & XP (`src/utils/progress.js`)
 - `addXP(amount, reason)` — adds XP with streak multiplier, updates skillXP, weeklyXP, dailyXP
@@ -139,6 +175,7 @@ Full documentation at `backend/DATABASE.md`:
 - `USER_JWT_SECRET` — User JWT secret (auto-generated if not set; causes logouts on restart if unset)
 - `ADMIN_USERNAME` — Admin login username
 - `ADMIN_PASSWORD_HASH` — PBKDF2 hashed admin password
+- `VITE_GOOGLE_CLIENT_ID` — Google OAuth Client ID (optional; enables Google Sign-In button)
 
 ## Development
 - Run both frontend and backend: `npm run dev:full`

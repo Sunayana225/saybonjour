@@ -1,210 +1,322 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { User, Mail, Edit3, Save, LogOut, TrendingUp, BookOpen, Brain, Flame, Award, Target } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Camera, Edit3, LogOut, CheckCircle, User, Target, Star, Flame, BookOpen, Brain, Map, Settings, Clock, History, Upload, Eye, Mic } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 import { getProgress, getAllBadges } from '../utils/progress'
 import SEO from '../components/SEO'
 
-const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-const GOALS = ['Conversational French', 'Travel to France', 'DELF Exam Prep', 'Business French', 'Academic French', 'Just for fun']
+const GOALS = [
+  { value: 'travel', label: '✈️ Travel to France' },
+  { value: 'conversation', label: '💬 Hold a conversation' },
+  { value: 'exam', label: '📝 Pass DELF exam' },
+  { value: 'business', label: '💼 Business French' },
+  { value: 'culture', label: '🎨 French culture' },
+  { value: 'fun', label: '😊 Just for fun' },
+]
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+const LEVEL_COLORS = { A1: 'text-green-600', A2: 'text-lime-600', B1: 'text-yellow-600', B2: 'text-orange-500', C1: 'text-red-500', C2: 'text-purple-600' }
 
-const avatarColors = [
-  'bg-burgundy-600', 'bg-blue-600', 'bg-emerald-600', 'bg-purple-600', 'bg-amber-600', 'bg-rose-600'
+const TABS = [
+  { id: 'overview', label: 'Overview', Icon: User },
+  { id: 'edit', label: 'Edit Profile', Icon: Edit3 },
+  { id: 'preferences', label: 'Learning Style', Icon: Eye },
 ]
 
-const Profile = () => {
-  const { user, logout, updateProfile } = useUser()
+function AvatarDisplay({ user, size = 'lg' }) {
+  const dim = size === 'lg' ? 'w-24 h-24 text-3xl' : 'w-10 h-10 text-sm'
+  const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '?'
+  const gradients = ['from-burgundy-400 to-burgundy-600', 'from-blue-400 to-blue-600', 'from-green-400 to-green-600', 'from-purple-400 to-purple-600', 'from-amber-400 to-amber-600']
+  const gi = user?.id ? user.id % gradients.length : 0
+  if (user?.avatar_url) {
+    return <img src={user.avatar_url} alt={user.name} className={`${dim} rounded-full object-cover border-4 border-white dark:border-dark-warm-100 shadow-lg`} />
+  }
+  return (
+    <div className={`${dim} rounded-full bg-gradient-to-br ${gradients[gi]} flex items-center justify-center text-white font-bold shadow-lg border-4 border-white dark:border-dark-warm-100`}>
+      {initials}
+    </div>
+  )
+}
+
+export default function Profile() {
+  const { user, logout, updateProfile, uploadAvatar } = useUser()
   const navigate = useNavigate()
-  const [editing, setEditing] = useState(false)
-  const [name, setName] = useState('')
-  const [goal, setGoal] = useState('')
-  const [cefrLevel, setCefrLevel] = useState('A1')
+  const progress = useMemo(() => getProgress(), [])
+  const badges = useMemo(() => getAllBadges(progress).filter(b => b.earned), [progress])
+
+  const [activeTab, setActiveTab] = useState('overview')
   const [saving, setSaving] = useState(false)
-  const [progress, setProgress] = useState(null)
+  const [saveMsg, setSaveMsg] = useState('')
+  const [avatarLoading, setAvatarLoading] = useState(false)
+  const fileRef = useRef(null)
 
-  useEffect(() => {
-    if (!user) { navigate('/login'); return }
-    setName(user.name || '')
-    setGoal(user.goal || '')
-    setCefrLevel(user.cefr_level || 'A1')
-    setProgress(getProgress())
-  }, [user])
+  const [editName, setEditName] = useState(user?.name || '')
+  const [editGoal, setEditGoal] = useState(user?.goal || '')
+  const [editLevel, setEditLevel] = useState(user?.cefr_level || 'A1')
+  const [editBio, setEditBio] = useState(user?.bio || '')
 
-  const handleSave = async () => {
+  const [visualPref, setVisualPref] = useState(user?.learning_prefs?.visual ?? 50)
+  const [audioPref, setAudioPref] = useState(user?.learning_prefs?.audio ?? 30)
+  const [readingPref, setReadingPref] = useState(user?.learning_prefs?.reading ?? 20)
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault()
     setSaving(true)
     try {
-      await updateProfile({ name, goal, cefr_level: cefrLevel })
-      setEditing(false)
-    } catch {}
-    setSaving(false)
+      await updateProfile({ name: editName, goal: editGoal, cefr_level: editLevel, bio: editBio })
+      setSaveMsg('Profile saved!')
+      setTimeout(() => setSaveMsg(''), 2500)
+    } catch {
+      setSaveMsg('Failed to save.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSavePrefs = async () => {
+    setSaving(true)
+    try {
+      await updateProfile({ learning_prefs: { visual: visualPref, audio: audioPref, reading: readingPref } })
+      setSaveMsg('Preferences saved!')
+      setTimeout(() => setSaveMsg(''), 2500)
+    } catch {
+      setSaveMsg('Failed to save.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarLoading(true)
+    try { await uploadAvatar(file) } catch {}
+    setAvatarLoading(false)
   }
 
   const handleLogout = () => { logout(); navigate('/') }
 
-  if (!user) return null
+  const xp = progress?.xp || 0
+  const streak = progress?.loginStreak || 0
+  const wordsLearned = progress?.wordsLearned || 0
+  const quizzesTaken = progress?.quizzesTaken || 0
 
-  const initials = (user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-  const colorIdx = user.id ? user.id % avatarColors.length : 0
-  const allBadges = getAllBadges()
-  const earnedBadges = allBadges.filter(b => (progress?.badges || []).includes(b.id))
+  const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-dark-warm-50 bg-gray-50 dark:bg-dark-warm-200 text-gray-800 dark:text-cream-50 text-sm focus:outline-none focus:ring-2 focus:ring-burgundy-400 transition-all'
+
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center">
+        <div className="text-5xl mb-4">🔒</div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-cream-50 mb-2">Sign in to view your profile</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">Track your progress and personalise your learning</p>
+        <div className="flex gap-3 justify-center">
+          <Link to="/login" className="px-6 py-3 bg-burgundy-600 text-white rounded-xl font-semibold hover:bg-burgundy-700 transition-colors">Sign In</Link>
+          <Link to="/signup" className="px-6 py-3 border border-gray-200 dark:border-dark-warm-50 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-warm-200 transition-colors">Create Account</Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
-      <SEO title="My Profile | SayBonjour" url="/profile" />
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
-        <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
-          <div className="max-w-3xl mx-auto">
-            <motion.div
-              className="flex flex-col sm:flex-row items-center sm:items-start gap-6"
-              initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-            >
-              <div className={`w-20 h-20 rounded-2xl ${avatarColors[colorIdx]} flex items-center justify-center text-2xl font-bold text-white shadow-lg flex-shrink-0`}>
-                {initials}
-              </div>
-              <div className="text-center sm:text-left">
-                <h1 className="text-3xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
-                  {user.name}
-                </h1>
-                <p className="text-cream-200 mt-1">{user.email}</p>
-                <div className="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
-                  <span className="bg-cream-50/20 px-3 py-1 rounded-full text-sm font-medium">
-                    {user.cefr_level || 'A1'} · {user.cefr_level === 'A1' ? 'Beginner' : user.cefr_level === 'A2' ? 'Elementary' : user.cefr_level === 'B1' ? 'Intermediate' : user.cefr_level === 'B2' ? 'Upper-Int.' : user.cefr_level === 'C1' ? 'Advanced' : 'Mastery'}
-                  </span>
-                  {progress && <span className="bg-amber-400/30 px-3 py-1 rounded-full text-sm font-medium">🔥 {progress.streak} day streak</span>}
-                </div>
-              </div>
-              <div className="sm:ml-auto flex gap-2">
-                <button onClick={() => setEditing(e => !e)} className="px-4 py-2 bg-cream-50/20 hover:bg-cream-50/30 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors">
-                  <Edit3 className="w-4 h-4" /> Edit
+      <SEO title={`${user.name} | SayBonjour`} url="/profile" noindex />
+      <div className="max-w-3xl mx-auto px-4 py-8">
+
+        <div className="bg-white dark:bg-dark-warm-100 rounded-2xl shadow-sm overflow-hidden mb-6">
+          <div className="h-20 bg-gradient-to-r from-burgundy-600 to-burgundy-800" />
+          <div className="px-6 pb-5">
+            <div className="flex items-end justify-between -mt-12 mb-4">
+              <div className="relative">
+                <AvatarDisplay user={user} size="lg" />
+                <button onClick={() => fileRef.current?.click()} disabled={avatarLoading}
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-white dark:bg-dark-warm-100 border-2 border-gray-200 dark:border-dark-warm-50 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm"
+                  title="Change photo">
+                  {avatarLoading ? <span className="text-xs animate-spin">⏳</span> : <Camera className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />}
                 </button>
-                <button onClick={handleLogout} className="px-4 py-2 bg-cream-50/10 hover:bg-red-500/30 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors">
-                  <LogOut className="w-4 h-4" /> Sign out
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+              </div>
+              <div className="flex gap-2 pb-1">
+                <Link to="/settings" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-warm-200 transition-colors border border-gray-200 dark:border-dark-warm-50">
+                  <Settings className="w-3.5 h-3.5" /> Settings
+                </Link>
+                <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-red-100 dark:border-red-900/40">
+                  <LogOut className="w-3.5 h-3.5" /> Sign out
                 </button>
               </div>
-            </motion.div>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-cream-50">{user.name}</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{user.email}</p>
+              {user.bio && <p className="text-gray-600 dark:text-gray-300 text-sm mt-1.5">{user.bio}</p>}
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                <span className={`text-sm font-bold ${LEVEL_COLORS[user.cefr_level] || 'text-gray-600'}`}>{user.cefr_level}</span>
+                <span className="text-gray-300 dark:text-gray-600">·</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{GOALS.find(g => g.value === user.goal)?.label || 'Learning French'}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-          {/* Edit form */}
-          {editing && (
-            <motion.div
-              className="bg-white dark:bg-dark-warm-100 rounded-2xl border border-cream-200 dark:border-dark-warm-50 p-6 shadow-sm"
-              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            >
-              <h2 className="font-bold text-burgundy-800 dark:text-cream-50 mb-4">Edit Profile</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-                  <input value={name} onChange={e => setName(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-cream-300 dark:border-dark-warm-50 rounded-xl text-sm bg-cream-50 dark:bg-dark-warm-200 text-gray-800 dark:text-cream-50 focus:outline-none focus:ring-2 focus:ring-burgundy-400" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Learning Goal</label>
-                  <select value={goal} onChange={e => setGoal(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-cream-300 dark:border-dark-warm-50 rounded-xl text-sm bg-cream-50 dark:bg-dark-warm-200 text-gray-800 dark:text-cream-50 focus:outline-none focus:ring-2 focus:ring-burgundy-400">
-                    <option value="">Choose a goal...</option>
-                    {GOALS.map(g => <option key={g} value={g}>{g}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current CEFR Level</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {CEFR_LEVELS.map(lvl => (
-                      <button key={lvl} onClick={() => setCefrLevel(lvl)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${cefrLevel === lvl ? 'bg-burgundy-600 text-cream-50 border-burgundy-600' : 'bg-white dark:bg-dark-warm-200 text-gray-600 dark:text-gray-300 border-cream-200 dark:border-dark-warm-50 hover:border-burgundy-400'}`}>
-                        {lvl}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={handleSave} disabled={saving}
-                    className="px-5 py-2 bg-burgundy-600 text-cream-50 rounded-xl text-sm font-medium hover:bg-burgundy-700 disabled:opacity-50 flex items-center gap-2">
-                    <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button onClick={() => setEditing(false)} className="px-5 py-2 bg-gray-100 dark:bg-dark-warm-200 text-gray-600 dark:text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-200">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
+        <div className="flex gap-1 bg-gray-100 dark:bg-dark-warm-200 rounded-xl p-1 mb-6">
+          {TABS.map(({ id, label, Icon }) => (
+            <button key={id} onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium flex-1 justify-center transition-all ${activeTab === id ? 'bg-white dark:bg-dark-warm-100 text-burgundy-700 dark:text-burgundy-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
+              <Icon className="w-3.5 h-3.5" /> <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
+        </div>
 
-          {/* Stats */}
-          {progress && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { icon: TrendingUp, label: 'Total XP', value: progress.xp, color: 'text-burgundy-600', bg: 'bg-burgundy-50 dark:bg-burgundy-900/20' },
-                { icon: Flame, label: 'Day Streak', value: progress.streak, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-                { icon: BookOpen, label: 'Words', value: progress.totalWordsLearned, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-                { icon: Brain, label: 'Quizzes', value: progress.totalQuizzesTaken, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20' },
-              ].map(({ icon: Icon, label, value, color, bg }) => (
-                <motion.div key={label} whileHover={{ y: -2 }}
-                  className="bg-white dark:bg-dark-warm-100 rounded-2xl border border-cream-200 dark:border-dark-warm-50 p-4 shadow-sm">
-                  <div className={`w-9 h-9 ${bg} rounded-xl flex items-center justify-center mb-2`}>
-                    <Icon className={`w-4 h-4 ${color}`} />
-                  </div>
-                  <div className="text-xl font-bold text-gray-800 dark:text-cream-50">{value}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {/* Goal */}
-          {user.goal && (
-            <div className="bg-white dark:bg-dark-warm-100 rounded-2xl border border-cream-200 dark:border-dark-warm-50 p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <Target className="w-5 h-5 text-burgundy-500" />
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Learning Goal</div>
-                  <div className="font-semibold text-gray-800 dark:text-cream-50">{user.goal}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Earned badges */}
-          {earnedBadges.length > 0 && (
-            <div className="bg-white dark:bg-dark-warm-100 rounded-2xl border border-cream-200 dark:border-dark-warm-50 p-6 shadow-sm">
-              <h2 className="font-bold text-gray-800 dark:text-cream-50 mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-amber-500" />
-                Badges Earned ({earnedBadges.length})
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {earnedBadges.map(badge => (
-                  <div key={badge.id} className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 px-3 py-2 rounded-xl">
-                    <span className="text-xl">{badge.icon}</span>
-                    <div>
-                      <div className="text-xs font-bold text-amber-800 dark:text-amber-300">{badge.name}</div>
-                      <div className="text-xs text-amber-600 dark:text-amber-400">{badge.description}</div>
-                    </div>
+        <AnimatePresence mode="wait">
+          {activeTab === 'overview' && (
+            <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="space-y-5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: 'Total XP', value: xp.toLocaleString(), icon: Star, color: 'text-amber-500' },
+                  { label: 'Day Streak', value: streak, icon: Flame, color: 'text-orange-500' },
+                  { label: 'Words Learned', value: wordsLearned, icon: BookOpen, color: 'text-blue-500' },
+                  { label: 'Quizzes Taken', value: quizzesTaken, icon: Brain, color: 'text-purple-500' },
+                ].map(({ label, value, icon: Icon, color }) => (
+                  <div key={label} className="bg-white dark:bg-dark-warm-100 rounded-2xl p-4 shadow-sm text-center">
+                    <Icon className={`w-5 h-5 mx-auto mb-1.5 ${color}`} />
+                    <div className={`text-xl font-bold ${color}`}>{value}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{label}</div>
                   </div>
                 ))}
               </div>
-            </div>
+
+              {badges.length > 0 && (
+                <div className="bg-white dark:bg-dark-warm-100 rounded-2xl p-5 shadow-sm">
+                  <h3 className="font-semibold text-gray-800 dark:text-cream-50 mb-3 flex items-center gap-2">
+                    <Star className="w-4 h-4 text-amber-500" /> Earned Badges
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {badges.map(b => (
+                      <div key={b.id} className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/40 rounded-xl px-3 py-2">
+                        <span className="text-lg">{b.icon}</span>
+                        <div>
+                          <div className="text-xs font-semibold text-amber-800 dark:text-amber-300">{b.name}</div>
+                          <div className="text-xs text-amber-600 dark:text-amber-400">{b.description}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { icon: Map, label: 'Learning Path', to: '/learning-path', color: 'text-burgundy-600' },
+                  { icon: History, label: 'Study History', to: '/history', color: 'text-blue-600' },
+                  { icon: Brain, label: 'Quizzes', to: '/quizzes', color: 'text-purple-600' },
+                  { icon: Target, label: 'Daily Challenges', to: '/daily-challenges', color: 'text-orange-500' },
+                  { icon: BookOpen, label: 'Vocabulary', to: '/vocabulary', color: 'text-green-600' },
+                  { icon: Clock, label: 'Progress', to: '/progress', color: 'text-amber-600' },
+                ].map(({ icon: Icon, label, to, color }) => (
+                  <Link key={to} to={to} className="bg-white dark:bg-dark-warm-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all group flex items-center gap-3">
+                    <Icon className={`w-5 h-5 ${color} group-hover:scale-110 transition-transform`} />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
           )}
 
-          {/* Quick links */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { to: '/progress', label: 'Full Dashboard', emoji: '📊' },
-              { to: '/vocabulary', label: 'My Vocab Deck', emoji: '🧠' },
-              { to: '/grammar', label: 'Grammar Hub', emoji: '📖' },
-              { to: '/daily-challenges', label: 'Daily Challenges', emoji: '⚡' },
-            ].map(({ to, label, emoji }) => (
-              <Link key={to} to={to} className="bg-white dark:bg-dark-warm-100 rounded-xl border border-cream-200 dark:border-dark-warm-50 p-4 text-center hover:border-burgundy-300 hover:shadow-sm transition-all">
-                <div className="text-2xl mb-1">{emoji}</div>
-                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">{label}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
+          {activeTab === 'edit' && (
+            <motion.div key="edit" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+              <div className="bg-white dark:bg-dark-warm-100 rounded-2xl p-6 shadow-sm">
+                <h2 className="font-semibold text-gray-800 dark:text-cream-50 mb-5 flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-burgundy-600" /> Edit Profile
+                </h2>
+                <form onSubmit={handleSaveProfile} className="space-y-5">
+                  <div className="flex flex-col items-center gap-3 p-4 bg-gray-50 dark:bg-dark-warm-200 rounded-xl">
+                    <AvatarDisplay user={user} size="lg" />
+                    <button type="button" onClick={() => fileRef.current?.click()}
+                      className="flex items-center gap-2 text-sm text-burgundy-600 dark:text-burgundy-400 hover:underline">
+                      <Upload className="w-3.5 h-3.5" /> Change profile photo
+                    </button>
+                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Display Name</label>
+                    <input value={editName} onChange={e => setEditName(e.target.value)} required className={inputCls} placeholder="Your name" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Bio</label>
+                    <textarea value={editBio} onChange={e => setEditBio(e.target.value)} rows={3} maxLength={200} className={inputCls + ' resize-none'} placeholder="Tell us about your French learning journey..." />
+                    <div className="text-xs text-gray-400 text-right mt-1">{editBio.length}/200</div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Learning Goal</label>
+                    <select value={editGoal} onChange={e => setEditGoal(e.target.value)} className={inputCls}>
+                      <option value="">Select a goal...</option>
+                      {GOALS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">CEFR Level</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {LEVELS.map(l => (
+                        <button type="button" key={l} onClick={() => setEditLevel(l)}
+                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${editLevel === l ? 'bg-burgundy-600 text-white' : 'bg-gray-100 dark:bg-dark-warm-200 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-warm-50'}`}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {saveMsg && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      className={`text-sm px-3 py-2 rounded-lg ${saveMsg.includes('Failed') ? 'text-red-600 bg-red-50 dark:bg-red-900/20' : 'text-green-700 bg-green-50 dark:bg-green-900/20'}`}>
+                      {saveMsg}
+                    </motion.p>
+                  )}
+                  <button type="submit" disabled={saving}
+                    className="w-full py-3 bg-burgundy-600 text-white rounded-xl font-semibold hover:bg-burgundy-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                    {saving ? '⏳ Saving...' : <><CheckCircle className="w-4 h-4" /> Save Changes</>}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'preferences' && (
+            <motion.div key="prefs" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+              <div className="bg-white dark:bg-dark-warm-100 rounded-2xl p-6 shadow-sm">
+                <h2 className="font-semibold text-gray-800 dark:text-cream-50 mb-2 flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-burgundy-600" /> Learning Style Preferences
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Adjust these to tell us how you prefer to learn — we'll tailor content recommendations accordingly.</p>
+                {[
+                  { label: 'Visual', desc: 'Images, diagrams, color-coded examples', icon: Eye, value: visualPref, set: setVisualPref, color: 'accent-blue-500' },
+                  { label: 'Audio & Speaking', desc: 'Listening exercises, pronunciation, speaking', icon: Mic, value: audioPref, set: setAudioPref, color: 'accent-purple-500' },
+                  { label: 'Reading & Writing', desc: 'Texts, grammar rules, written exercises', icon: BookOpen, value: readingPref, set: setReadingPref, color: 'accent-green-500' },
+                ].map(({ label, desc, icon: Icon, value, set, color }) => (
+                  <div key={label} className="mb-5 pb-5 border-b border-gray-100 dark:border-dark-warm-50 last:border-0 last:mb-0 last:pb-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <div className="text-sm font-medium text-gray-800 dark:text-cream-50">{label}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{desc}</div>
+                      </div>
+                      <span className="text-lg font-bold text-burgundy-600 dark:text-burgundy-400">{value}%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value={value} onChange={e => set(Number(e.target.value))}
+                      className={`w-full ${color}`} />
+                  </div>
+                ))}
+                {saveMsg && (
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    className="text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-2 mb-3">
+                    {saveMsg}
+                  </motion.p>
+                )}
+                <button onClick={handleSavePrefs} disabled={saving}
+                  className="w-full py-3 bg-burgundy-600 text-white rounded-xl font-semibold hover:bg-burgundy-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                  {saving ? '⏳ Saving...' : <><CheckCircle className="w-4 h-4" /> Save Preferences</>}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   )
 }
-
-export default Profile
