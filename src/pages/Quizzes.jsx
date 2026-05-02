@@ -84,7 +84,7 @@ const Quizzes = () => {
   return (
     <>
       <SEO title={selectedQuiz ? `${selectedQuiz.title} | French Quiz` : "French Quizzes | SayBonjour"} description="Test your French knowledge with interactive quizzes." keywords="french quizzes, french tests" url="/quizzes" />
-      <div className="flex h-screen pt-16 bg-gray-50 dark:bg-dark-warm-300">
+      <div className="flex h-[calc(100vh-5rem)] bg-gray-50 dark:bg-dark-warm-300">
         <ContentSidebar sections={sections} selectedSection={selectedSection} selectedItem={selectedItem}
           onSectionSelect={setSelectedSection} onItemSelect={handleItemSelect}
           expandedSections={expandedSections} onToggleSection={handleToggleSection} />

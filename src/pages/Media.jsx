@@ -237,7 +237,7 @@ const Media = () => {
   }
 
   return (
-    <div className="flex h-screen pt-16 bg-white dark:bg-dark-warm-300">
+    <div className="flex h-[calc(100vh-5rem)] bg-white dark:bg-dark-warm-300">
       <ContentSidebar
         sections={sections}
         selectedSection={selectedSection}
