@@ -45,7 +45,12 @@ export default function FrenchJokes() {
 
   return (
     <>
-      <SEO title="French Jokes | SayBonjour" url="/jokes" />
+      <SEO
+        title="French Jokes — Puns, Wordplay & Blagues | SayBonjour!"
+        description="Discover French humour through puns, wordplay, and classic blagues. Each joke comes with French text, English translation, and vocabulary notes to help you laugh — and learn."
+        keywords="french jokes, blagues françaises, french puns, french wordplay, funny french, learn french with humour, french comedy"
+        url="/jokes"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 flex">
 
         {/* ── Left sidebar (desktop) ── */}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { FileText, Download, Star, Clock, Users, BookOpen, Headphones, PenTool, Filter, Search } from 'lucide-react'
 import { motion } from 'framer-motion'
+import SEO from '../components/SEO'
 
 const Worksheets = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -302,6 +303,12 @@ startxref
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
+      <SEO
+        title="Free French Worksheets — Grammar, Vocabulary & Pronunciation | SayBonjour!"
+        description="Download free printable French worksheets covering verb conjugations, pronunciation, travel vocabulary, grammar exercises, and more. Perfect for self-study at any level."
+        keywords="french worksheets, free french worksheets, printable french exercises, french grammar worksheets, french vocabulary worksheets, learn french pdf"
+        url="/worksheets"
+      />
       {/* Hero */}
       <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
         <div className="max-w-4xl mx-auto text-center">

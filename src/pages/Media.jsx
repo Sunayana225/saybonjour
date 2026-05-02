@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Film, Music, Tv, Star, Clock, Calendar, Play, ExternalLink, Heart, BookOpen, X, Volume2, Headphones } from 'lucide-react'
 import { motion } from 'framer-motion'
+import SEO from '../components/SEO'
 import ContentSidebar from '../components/ContentSidebar'
 import BookmarkButton from '../components/BookmarkButton'
 
@@ -238,6 +239,12 @@ const Media = () => {
 
   return (
     <div className="flex h-[calc(100vh-5rem)] bg-white dark:bg-dark-warm-300">
+      <SEO
+        title="French Films, Music & TV Shows | Media Guide | SayBonjour!"
+        description="Discover the best French films, music, and TV series to improve your French naturally. Curated by difficulty level — perfect for beginner to advanced learners."
+        keywords="french films, french movies, french music, french tv shows, learn french with movies, french series netflix, amélie film, lupin"
+        url="/media"
+      />
       <ContentSidebar
         sections={sections}
         selectedSection={selectedSection}

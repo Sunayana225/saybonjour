@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { MapPin, Coffee, Utensils, Calendar, Users, Globe, Heart, Gift, ArrowLeft, Volume2, BookOpen, Star } from 'lucide-react'
+import SEO from '../components/SEO'
 import BookmarkButton from '../components/BookmarkButton'
 import FlashcardButton from '../components/FlashcardButton'
 
@@ -535,6 +536,12 @@ Free concerts throughout France. Everyone can play in the street.
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
+      <SEO
+        title="French Culture & Customs | Cultural Insights | SayBonjour!"
+        description="Explore French culture through interactive articles — café etiquette, dining customs, social codes, national celebrations, and more. Learn the culture behind the language."
+        keywords="french culture, french customs, café culture, french etiquette, french traditions, french celebrations, cultural insights french"
+        url="/culture"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8 text-center">

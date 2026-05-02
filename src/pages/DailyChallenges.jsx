@@ -449,7 +449,12 @@ const DailyChallenges = () => {
 
   return (
     <>
-      <SEO title="Daily Challenges | SayBonjour" url="/daily-challenges" />
+      <SEO
+        title="Daily French Challenges — Build a Streak & Earn XP | SayBonjour!"
+        description="Complete a new French challenge every day to maintain your streak and earn experience points. Daily vocabulary, grammar, translation, and listening exercises for all levels."
+        keywords="daily french challenges, french daily practice, french streak, learn french daily, french exercises, french XP, french vocabulary challenge"
+        url="/daily-challenges"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-3xl mx-auto text-center">

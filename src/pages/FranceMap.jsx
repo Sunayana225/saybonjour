@@ -191,7 +191,12 @@ export default function FranceMap() {
 
   return (
     <>
-      <SEO title="Map of France | SayBonjour" url="/france-map" />
+      <SEO
+        title="Interactive Map of France — Regional French Dialects & Culture | SayBonjour!"
+        description="Explore France's regions interactively. Click any region to discover its local dialect, traditional cuisine, key cities, and cultural highlights — from Brittany to Provence."
+        keywords="map of france, french regions, french dialects, regional french, france culture by region, brittany french, provence french, alsace french"
+        url="/france-map"
+      />
       <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300">
         <div className="max-w-7xl mx-auto px-4 py-8">
 

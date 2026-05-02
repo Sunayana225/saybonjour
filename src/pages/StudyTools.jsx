@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Bookmark, RotateCcw, Star, BookOpen, Brain, ChevronLeft, Play } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import SEO from '../components/SEO'
 import FlashCard from '../components/FlashCard'
 import { getAllFavorites, removeFromFavorites } from '../utils/favorites'
 
@@ -149,6 +150,12 @@ const StudyTools = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
+      <SEO
+        title="French Study Tools — Flashcards, Phrases & Saved Content | SayBonjour!"
+        description="Access all your SayBonjour study tools in one place — flashcard topics, saved phrases, vocabulary notes, and bookmarked lessons. Review what matters most."
+        keywords="french study tools, french flashcards, french learning tools, study french online, french revision, french bookmarks"
+        url="/study-tools"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Header */}
         <motion.div

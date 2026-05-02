@@ -183,7 +183,12 @@ export default function BusinessFrench() {
 
   return (
     <>
-      <SEO title="Business French | SayBonjour" url="/business-french" />
+      <SEO
+        title="Business French — Professional Vocabulary & Phrases | SayBonjour!"
+        description="Master professional French for the workplace. Learn formal vocabulary, meeting phrases, business email templates, and negotiation language used in French-speaking companies."
+        keywords="business french, professional french, french workplace vocabulary, french email phrases, french meeting language, learn business french online"
+        url="/business-french"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
 
         {/* Sticky toolbar */}

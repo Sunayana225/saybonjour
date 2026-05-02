@@ -135,7 +135,12 @@ const WordMatch = () => {
 
   return (
     <>
-      <SEO title="Word Match Game | SayBonjour" url="/word-match" />
+      <SEO
+        title="French Word Match Game — Vocabulary Recognition | SayBonjour!"
+        description="Match French words to their English meanings in this fast-paced card-flipping game. A great way to build vocabulary recognition, recall, and response speed."
+        keywords="french word match, french vocabulary game, match french words, french memory game, learn french vocabulary, french word recognition game"
+        url="/word-match"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-2xl mx-auto text-center">

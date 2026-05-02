@@ -168,7 +168,12 @@ export default function TypingRace() {
 
   return (
     <>
-      <SEO title="Typing Race | SayBonjour" url="/typing-race" />
+      <SEO
+        title="French Typing Race — Improve Your French Typing Speed | SayBonjour!"
+        description="Race the clock typing French words and sentences. Build your French typing speed, accuracy, and spelling all at once. A fun way to reinforce vocabulary through repetition."
+        keywords="french typing game, type french words, french keyboard practice, french spelling game, learn french typing, french typing speed test"
+        url="/typing-race"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-2xl mx-auto text-center">

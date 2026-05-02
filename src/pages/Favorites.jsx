@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart, BookOpen, Film, Music, Tv, MessageSquare, Trash2, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
+import SEO from '../components/SEO'
 import { getAllFavorites, removeFromFavorites } from '../utils/favorites'
 
 const Favorites = () => {
@@ -59,6 +60,12 @@ const Favorites = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white dark:from-dark-warm-300 dark:to-dark-warm-300">
+      <SEO
+        title="My Favourites | SayBonjour!"
+        description="Your saved French phrases, media recommendations, and bookmarked lessons — all in one place."
+        url="/favorites"
+        noindex
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <motion.div

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Calendar, Volume2, BookOpen, Star, Clock, RefreshCw, Heart, Share2, Copy, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
+import SEO from '../components/SEO'
 import ContentSidebar from '../components/ContentSidebar'
 import SpeakButton from '../components/SpeakButton'
 import BookmarkButton from '../components/BookmarkButton'
@@ -261,6 +262,12 @@ const PhraseOfTheDay = () => {
 
   return (
     <div className="flex h-[calc(100vh-5rem)] bg-white dark:bg-dark-warm-300">
+      <SEO
+        title="French Phrase of the Day | Daily French Expressions | SayBonjour!"
+        description="Learn a new French phrase every day. Each phrase includes pronunciation audio, English translation, usage examples, and cultural context. Build vocabulary one phrase at a time."
+        keywords="french phrase of the day, daily french, french expressions, french phrases with audio, learn french phrases, french vocabulary daily"
+        url="/phrase-of-the-day"
+      />
       <ContentSidebar
         sections={sections}
         selectedSection={selectedSection}

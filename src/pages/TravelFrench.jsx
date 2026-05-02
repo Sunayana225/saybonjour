@@ -71,7 +71,12 @@ export default function TravelFrench() {
 
   return (
     <>
-      <SEO title="Travel French | SayBonjour" url="/travel-french" />
+      <SEO
+        title="Travel French — Essential Phrases for Visiting France | SayBonjour!"
+        description="Learn essential French phrases for travel — hotels, restaurants, transport, shopping, and emergencies. Sound confident in France with our curated travel vocabulary and real scenarios."
+        keywords="travel french, french phrases for travel, french for tourists, france travel guide phrases, hotel french phrases, restaurant french, emergency french"
+        url="/travel-french"
+      />
       <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300 flex">
 
         {/* ── Left sidebar (desktop) ── */}

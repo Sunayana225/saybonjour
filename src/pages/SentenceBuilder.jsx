@@ -297,7 +297,12 @@ export default function SentenceBuilder() {
 
   return (
     <>
-      <SEO title="Sentence Builder | SayBonjour" url="/sentence-builder" />
+      <SEO
+        title="French Sentence Builder — Construct Phrases Step by Step | SayBonjour!"
+        description="Build grammatically correct French sentences interactively. Drag, drop, and arrange words to form phrases across different tenses, then get instant feedback on your answers."
+        keywords="french sentence builder, build french sentences, french grammar practice, french word order, french sentence structure, learn french sentences"
+        url="/sentence-builder"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
 
         {/* ── Slim top bar ── */}

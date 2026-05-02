@@ -165,7 +165,12 @@ export default function InteractiveStory() {
 
   return (
     <>
-      <SEO title="Interactive French Stories | SayBonjour" url="/stories" />
+      <SEO
+        title="Interactive French Stories — Learn French Through Reading | SayBonjour!"
+        description="Practise French in context with branching interactive stories. Make choices that shape the plot, encounter real vocabulary in use, and improve your reading comprehension naturally."
+        keywords="interactive french stories, learn french reading, french comprehension, french story for learners, french graded readers, immersive french learning"
+        url="/stories"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-3xl mx-auto text-center">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Lightbulb, Brain, Globe, BookOpen, ArrowRight, Zap, Heart, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import SEO from '../components/SEO'
 import SpeakButton from '../components/SpeakButton'
 
 const MemoryBoosters = () => {
@@ -196,6 +197,12 @@ const MemoryBoosters = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
+      <SEO
+        title="French Memory Boosters — Cognates, Idioms & False Friends | SayBonjour!"
+        description="Supercharge your French memory with cognates, false friends (faux amis), idioms, and cross-dialect comparisons. Smart techniques to make French vocabulary stick faster."
+        keywords="french cognates, french false friends, faux amis, french idioms, french expressions, learn french vocabulary fast, french memory techniques"
+        url="/memory-boosters"
+      />
       {/* Hero */}
       <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
         <div className="max-w-4xl mx-auto text-center">

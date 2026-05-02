@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, FileText, BookOpen, Copy, CheckCheck, ChevronDown, ChevronUp } from 'lucide-react'
+import SEO from '../components/SEO'
 import { emailTemplates, letterTemplates, essayStructures, usefulConnectors } from '../data/writingData'
 
 const TABS = [
@@ -171,6 +172,12 @@ export default function WritingTemplates() {
 
   return (
     <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300 py-12 px-4">
+      <SEO
+        title="French Writing Templates — Emails, Letters & Essays | SayBonjour!"
+        description="Practise French writing with structured templates for formal emails, personal letters, and DELF-style essays. Includes vocabulary connectors and copy-to-clipboard functionality."
+        keywords="french writing templates, french email template, french letter template, french essay writing, DELF writing practice, formal french writing"
+        url="/writing-templates"
+      />
       <div className="max-w-4xl mx-auto">
 
         {/* Header */}

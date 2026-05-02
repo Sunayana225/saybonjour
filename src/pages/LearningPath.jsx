@@ -104,7 +104,12 @@ export default function LearningPath() {
 
   return (
     <>
-      <SEO title="My Learning Path | SayBonjour" url="/learning-path" />
+      <SEO
+        title="My French Learning Path | SayBonjour!"
+        description="Your personalised French learning roadmap. Track completed lessons, see what's next, and advance through A1 to C2 with a structured progression tailored to your level."
+        url="/learning-path"
+        noindex
+      />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">

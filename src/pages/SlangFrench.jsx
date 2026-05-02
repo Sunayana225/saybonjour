@@ -116,7 +116,12 @@ export default function SlangFrench() {
 
   return (
     <>
-      <SEO title="French Slang | SayBonjour" url="/slang-french" />
+      <SEO
+        title="French Slang & Verlan — Informal French Expressions | SayBonjour!"
+        description="Learn the French slang, verlan, and informal expressions that native speakers actually use. Master colloquial French they don't teach in textbooks — from argot to street talk."
+        keywords="french slang, verlan, informal french, colloquial french, french argot, everyday french expressions, learn french slang, french street talk"
+        url="/slang-french"
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300 flex">
 
         {/* ── Left sidebar (desktop) ── */}
