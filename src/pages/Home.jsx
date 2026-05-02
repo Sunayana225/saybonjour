@@ -505,7 +505,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center mb-10 sm:mb-12 md:mb-16"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
@@ -519,7 +519,7 @@ const Home = () => {
             </motion.div>
             <motion.h2
               className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-cream-50 mb-3 sm:mb-4 transition-colors duration-300 px-2"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 1, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
@@ -528,7 +528,7 @@ const Home = () => {
             </motion.h2>
             <motion.p
               className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto transition-colors duration-300 px-2"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -549,7 +549,7 @@ const Home = () => {
                 <Link to="/resources" className="block lg:col-span-2">
                   <motion.div
                     className="bento-card-primary"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                     viewport={{ once: true }}
@@ -594,7 +594,7 @@ const Home = () => {
                 <Link to="/quizzes" className="block">
                   <motion.div
                     className="bento-card-secondary"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                     viewport={{ once: true }}
@@ -646,7 +646,7 @@ const Home = () => {
                 <Link to="/phrase-of-the-day" className="block">
                   <motion.div
                     className="bento-card-accent"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
                     viewport={{ once: true }}
@@ -679,7 +679,7 @@ const Home = () => {
                 <Link to="/memory-boosters" className="block">
                   <motion.div
                     className="bento-card-secondary"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
                     viewport={{ once: true }}
@@ -704,7 +704,7 @@ const Home = () => {
                 <Link to="/worksheets" className="block">
                   <motion.div
                     className="bento-card-neutral"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.5 }}
                     viewport={{ once: true }}
@@ -739,7 +739,7 @@ const Home = () => {
                 <Link to="/culture" className="block">
                   <motion.div
                     className="bento-card-culture"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.6 }}
                     viewport={{ once: true }}
@@ -784,7 +784,7 @@ const Home = () => {
                 <Link to="/france-map" className="block">
                   <motion.div
                     className="bento-card-tools"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.7 }}
                     viewport={{ once: true }}
@@ -829,7 +829,7 @@ const Home = () => {
                 <Link to="/media" className="block">
                   <motion.div
                     className="bento-card-media"
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 1, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 }}
                     viewport={{ once: true }}
@@ -886,7 +886,7 @@ const Home = () => {
       <section className="py-12 sm:py-16 md:py-20 section-gradient-alt dark:bg-dark-warm-200 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 1, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
@@ -899,7 +899,7 @@ const Home = () => {
             </p>
             <motion.div
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 1, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}

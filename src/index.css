@@ -287,18 +287,22 @@
   /* Section gradients for both modes */
   .section-gradient {
     background: linear-gradient(135deg, #FFFCEF 0%, #F5F2E8 50%, #EBE8DB 100%);
+    color: #1f2937;
   }
 
   .dark .section-gradient {
     background: linear-gradient(135deg, #1A1A1A 0%, #2B1B1B 50%, #2C2C2C 100%);
+    color: #fffcef;
   }
 
   .section-gradient-alt {
     background: linear-gradient(145deg, #FFFCEF 0%, #FEF2F2 30%, #F5F2E8 100%);
+    color: #1f2937;
   }
 
   .dark .section-gradient-alt {
     background: linear-gradient(145deg, #1A1A1A 0%, #2B1B1B 30%, #2C2C2C 100%);
+    color: #fffcef;
   }
 
   /* Parallax and Motion Effects */
@@ -404,20 +408,48 @@
 
   /* Bento Card Typography */
   .bento-title {
-    @apply text-lg font-bold text-gray-900 dark:text-cream-100 mb-3 leading-tight;
+    @apply text-lg font-bold mb-3 leading-tight;
+    color: #1f2937;
+  }
+
+  .dark .bento-title {
+    color: #fffcef;
   }
 
   .bento-title-large {
-    @apply text-xl font-bold text-gray-900 dark:text-cream-100 mb-4 leading-tight;
+    @apply text-xl font-bold mb-4 leading-tight;
+    color: #1f2937;
+  }
+
+  .dark .bento-title-large {
+    color: #fffcef;
   }
 
   .bento-description {
-    @apply text-sm text-gray-600 dark:text-cream-200 mb-4 leading-relaxed;
+    @apply text-sm mb-4 leading-relaxed;
+    color: #4b5563;
     line-height: 1.6;
   }
 
+  .dark .bento-description {
+    color: #e5e0d8;
+  }
+
   .bento-cta {
-    @apply inline-flex items-center text-sm font-medium text-burgundy-700 dark:text-cream-200 hover:text-burgundy-900 dark:hover:text-cream-50 transition-colors duration-200;
+    @apply inline-flex items-center text-sm font-medium transition-colors duration-200;
+    color: #660019;
+  }
+
+  .dark .bento-cta {
+    color: #e5e0d8;
+  }
+
+  .bento-cta:hover {
+    color: #33000d;
+  }
+
+  .dark .bento-cta:hover {
+    color: #fffcef;
   }
 
   /* Bento Card Icons */
@@ -455,7 +487,12 @@
 
   /* Enhanced Text Hierarchy */
   .category-header {
-    @apply text-sm font-semibold text-gray-500 dark:text-burgundy-400 uppercase tracking-wider mb-4 px-1;
+    @apply text-sm font-semibold uppercase tracking-wider mb-4 px-1;
+    color: #6b7280;
+  }
+
+  .dark .category-header {
+    color: #f87171;
   }
 
   .text-primary {
