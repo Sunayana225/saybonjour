@@ -235,8 +235,8 @@ const Navbar = () => {
   const navItemCls = (active) =>
     `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
       active
-        ? 'text-burgundy-400 bg-burgundy-900/30 border border-burgundy-700/60'
-        : 'text-gray-200 hover:text-cream-50 hover:bg-burgundy-900/20'
+        ? 'text-burgundy-400'
+        : 'text-gray-300 hover:text-white hover:bg-white/5'
     }`
 
   const MegaMenuColumn = ({ col, isLast }) => {
