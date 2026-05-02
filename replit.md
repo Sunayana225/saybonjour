@@ -1,7 +1,7 @@
 # SayBonjour! - French Learning Platform
 
 ## Overview
-An interactive French learning platform called "SayBonjour!" with a React/Vite frontend and Express.js backend. Includes user accounts, dark mode, daily challenges, mini-games, reading comprehension, skill assessment onboarding, rank tiers, XP multipliers, and a full learning suite with Phase 1 and Phase 2 features.
+An interactive French learning platform called "SayBonjour!" with a React/Vite frontend and Express.js backend. Includes user accounts, dark mode, daily challenges, mini-games, reading comprehension, skill assessment onboarding, rank tiers, XP multipliers, and a full learning suite spanning Phase 1, Phase 2, and Phase 3 features.
 
 ## Architecture
 
@@ -25,18 +25,20 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 ### Data Storage
 - JSON files for articles, quizzes, sections: `backend/data/`
 - SQLite DB: `phrases`, `phrase_sections`, `users` tables
+- See `backend/DATABASE.md` for full database documentation
 
 ## Key Files
 - `vite.config.js` - Vite config with proxy to backend at localhost:3001
 - `backend/server.js` - Express server; user routes added at line ~941
-- `src/App.jsx` - Main React app: ThemeProvider → AuthProvider → UserProvider → Router
+- `backend/DATABASE.md` - Full database and API documentation
+- `src/App.jsx` - Main React app: ThemeProvider → AuthProvider → UserProvider → Router (31 routes)
 - `src/context/ThemeContext.jsx` - Dark mode toggle; persists to localStorage; adds `dark` class to `<html>`
 - `src/context/UserContext.jsx` - Regular user auth (separate from admin AuthContext)
 - `src/context/AuthContext.jsx` - Admin-only JWT auth (unchanged)
 - `src/utils/progress.js` - XP, streaks, levels, badges, rank tiers, XP multipliers, daily login reward
 - `src/utils/srs.js` - SM-2 spaced repetition algorithm
 
-## Pages (28 routes)
+## Pages (31 routes)
 
 ### Core
 - `/` - Home (hero, features, animated background)
@@ -53,6 +55,7 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 - `/vocabulary` - SRS Vocabulary Builder (SM-2 spaced repetition)
 - `/conjugate` - Verb Conjugation tool (25 verbs, 8 tenses)
 - `/study-tools` - Flashcards and bookmarks
+- `/writing` - Writing Templates (emails, formal letters, essays, connectors) — **Phase 3**
 - `/reading` - Reading comprehension passages A1–B2
 - `/daily-challenges` - 3 daily challenges (vocab sprint, grammar quiz, translation)
 - `/stories` - Interactive choose-your-path French stories
@@ -61,6 +64,7 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 - `/typing-race` - Type French translations fast
 - `/business-french` - Professional vocabulary, phrases, dialogues, quiz
 - `/slang-french` - Street French, verlan, informal register, quiz
+- `/travel-french` - Travel vocab, phrases, real scenarios, quiz — **Phase 3**
 
 ### Resources
 - `/resources` - Articles and learning content
@@ -71,6 +75,7 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 - `/france-map` - Interactive map of French regions
 - `/worksheets` - Downloadable practice sheets
 - `/phrase-of-the-day` - Daily French phrase
+- `/jokes` - French jokes & humour with punchlines and vocab notes — **Phase 3**
 
 ### Admin
 - `/admin` - Admin panel (requires admin login via `Authorization: Bearer` header)
@@ -102,8 +107,8 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 
 ### Navbar
 - Closes all dropdowns + mobile menu on route change
-- Learn dropdown (4 sections): Language Tools, Practice, Mini Games, Specialist French
-- Resources dropdown (3 sections): Core Learning, Quick Access, Culture & Media
+- Learn dropdown (4 sections): Language Tools (5 items), Practice (4 items), Mini Games (2 items), Specialist French (3 items)
+- Resources dropdown (3 sections): Core Learning, Quick Access (4 items incl. Jokes), Culture & Media
 - User avatar menu (logged in) or Login/Signup buttons
 
 ## Data Files
@@ -114,12 +119,23 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 - `src/data/businessData.js` — Business vocabulary, phrases, dialogues, quiz
 - `src/data/slangData.js` — Slang expressions, verlan, formal vs informal, quiz
 - `src/data/storyData.js` — 2 interactive branching stories
+- `src/data/travelData.js` — 44 vocab words, 6 phrase categories, 4 scenarios, 6-question quiz
+- `src/data/jokesData.js` — 12 French jokes (Puns/Wordplay/Classic) with punchlines, vocab, cultural notes
+- `src/data/writingData.js` — 4 email templates, 2 letter templates, 2 essay structures, 8 connectors
+
+## Database Documentation
+Full documentation at `backend/DATABASE.md`:
+- SQLite tables: `users`, `phrases`, `phrase_sections`
+- JSON data files: `articles.json`, `quizzes.json`, `sections.json`
+- All localStorage keys and `saybonjour_progress` schema
+- All API endpoints with request/response shapes
+- Security notes and initialisation process
 
 ## Environment Variables
 - `PORT` — Backend port (default 3001)
 - `NODE_ENV` — Environment
 - `JWT_SECRET` — Admin JWT secret (auto-generated if not set)
-- `USER_JWT_SECRET` — User JWT secret (auto-generated if not set)
+- `USER_JWT_SECRET` — User JWT secret (auto-generated if not set; causes logouts on restart if unset)
 - `ADMIN_USERNAME` — Admin login username
 - `ADMIN_PASSWORD_HASH` — PBKDF2 hashed admin password
 
@@ -138,9 +154,11 @@ An interactive French learning platform called "SayBonjour!" with a React/Vite f
 
 ## PWA
 - `public/site.webmanifest` — PWA manifest (name, icons, theme colour)
-- `index.html` references favicon.svg, site.webmanifest, apple-touch-icon
+- `public/favicon.svg` — SVG favicon (burgundy background, B lettermark)
+- `index.html` references favicon.svg, site.webmanifest
 
 ## Known Constraints
-- No public/ folder was present initially; created for site.webmanifest
-- favicon files (favicon.svg, favicon-32x32.png, etc.) referenced in index.html — add actual files for full PWA support
+- favicon.png files (32×32, apple-touch) not present — SVG fallback in use
+- `logo.png` referenced in Navbar but served from Replit environment (not in public/)
 - APK/mobile: Capacitor is the recommended path to wrap this as an Android APK; requires Android Studio (not available in Replit sandbox)
+- `USER_JWT_SECRET` not set as env var means users get logged out on every server restart

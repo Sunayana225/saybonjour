@@ -33,6 +33,9 @@ import SentenceBuilder from './pages/SentenceBuilder'
 import BusinessFrench from './pages/BusinessFrench'
 import SlangFrench from './pages/SlangFrench'
 import InteractiveStory from './pages/InteractiveStory'
+import TravelFrench from './pages/TravelFrench'
+import FrenchJokes from './pages/FrenchJokes'
+import WritingTemplates from './pages/WritingTemplates'
 import NotFound from './pages/NotFound'
 import { claimDailyLoginReward } from './utils/progress'
 
@@ -90,6 +93,9 @@ function App() {
                     <Route path="/business-french" element={<BusinessFrench />} />
                     <Route path="/slang-french" element={<SlangFrench />} />
                     <Route path="/stories" element={<InteractiveStory />} />
+                    <Route path="/travel-french" element={<TravelFrench />} />
+                    <Route path="/jokes" element={<FrenchJokes />} />
+                    <Route path="/writing" element={<WritingTemplates />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

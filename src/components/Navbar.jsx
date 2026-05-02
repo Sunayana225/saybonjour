@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, BookOpen, Brain, Heart, ChevronDown, MessageCircle, Lightbulb, FileText, Globe, Map, Film, BookMarked, GraduationCap, TrendingUp, Sun, Moon, User, LogOut, Zap, BookOpenCheck, Gamepad2 } from 'lucide-react'
+import { Menu, X, BookOpen, Brain, Heart, ChevronDown, MessageCircle, Lightbulb, FileText, Globe, Map, Film, BookMarked, GraduationCap, TrendingUp, Sun, Moon, User, LogOut, Zap, BookOpenCheck, Gamepad2, Plane, Laugh, PenLine } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getFavoritesCounts } from '../utils/favorites'
 import { getProgress } from '../utils/progress'
@@ -73,6 +73,7 @@ const Navbar = () => {
         { name: 'Grammar A1–C2', href: '/grammar', icon: GraduationCap, description: 'CEFR-structured grammar lessons' },
         { name: 'Vocabulary SRS', href: '/vocabulary', icon: Brain, description: 'Spaced repetition flashcards' },
         { name: 'Study Tools', href: '/study-tools', icon: Lightbulb, description: 'Flashcards and bookmarks' },
+        { name: 'Writing Templates', href: '/writing', icon: PenLine, description: 'Emails, letters & essays in French' },
       ]
     },
     {
@@ -96,6 +97,7 @@ const Navbar = () => {
       items: [
         { name: 'Business French', href: '/business-french', icon: GraduationCap, description: 'Professional vocabulary & dialogues' },
         { name: 'Slang & Informal', href: '/slang-french', icon: MessageCircle, description: 'Street French & verlan' },
+        { name: 'Travel French', href: '/travel-french', icon: Plane, description: 'Survive & thrive while travelling' },
       ]
     }
   ]
@@ -111,6 +113,7 @@ const Navbar = () => {
         { name: 'Phrase of the Day', href: '/phrase-of-the-day', icon: MessageCircle, description: 'Daily French phrases' },
         { name: 'Memory Boosters', href: '/memory-boosters', icon: Lightbulb, description: 'Cognates, idioms, and tips' },
         { name: 'Worksheets', href: '/worksheets', icon: FileText, description: 'Downloadable practice sheets' },
+        { name: 'French Jokes', href: '/jokes', icon: Laugh, description: 'Humour & jeux de mots' },
       ]
     },
     {
