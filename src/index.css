@@ -404,15 +404,15 @@
 
   /* Bento Card Typography */
   .bento-title {
-    @apply text-lg font-bold text-burgundy-900 dark:text-cream-100 mb-3 leading-tight;
+    @apply text-lg font-bold text-gray-900 dark:text-cream-100 mb-3 leading-tight;
   }
 
   .bento-title-large {
-    @apply text-xl font-bold text-burgundy-900 dark:text-cream-100 mb-4 leading-tight;
+    @apply text-xl font-bold text-gray-900 dark:text-cream-100 mb-4 leading-tight;
   }
 
   .bento-description {
-    @apply text-sm text-burgundy-800 dark:text-cream-200 mb-4 leading-relaxed;
+    @apply text-sm text-gray-600 dark:text-cream-200 mb-4 leading-relaxed;
     line-height: 1.6;
   }
 
@@ -455,7 +455,7 @@
 
   /* Enhanced Text Hierarchy */
   .category-header {
-    @apply text-sm font-semibold text-burgundy-800 dark:text-burgundy-400 uppercase tracking-wider mb-4 px-1;
+    @apply text-sm font-semibold text-gray-500 dark:text-burgundy-400 uppercase tracking-wider mb-4 px-1;
   }
 
   .text-primary {

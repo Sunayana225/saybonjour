@@ -518,7 +518,7 @@ const Home = () => {
               Comprehensive Learning Platform
             </motion.div>
             <motion.h2
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-burgundy-900 dark:text-cream-50 mb-3 sm:mb-4 transition-colors duration-300 px-2"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-cream-50 mb-3 sm:mb-4 transition-colors duration-300 px-2"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -527,7 +527,7 @@ const Home = () => {
               Everything You Need to Master French
             </motion.h2>
             <motion.p
-              className="text-base sm:text-lg md:text-xl text-burgundy-900 dark:text-gray-300 max-w-2xl mx-auto transition-colors duration-300 px-2"
+              className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto transition-colors duration-300 px-2"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -568,19 +568,19 @@ const Home = () => {
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
                           <span className="text-base sm:text-lg">📖</span>
                         </div>
-                        <p className="text-xs sm:text-sm text-burgundy-800 dark:text-gray-400 font-medium">200+ Articles</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">200+ Articles</p>
                       </div>
                       <div className="text-center">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
                           <span className="text-base sm:text-lg">🎓</span>
                         </div>
-                        <p className="text-xs sm:text-sm text-burgundy-800 dark:text-gray-400 font-medium">All Levels</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">All Levels</p>
                       </div>
                       <div className="text-center">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
                           <span className="text-base sm:text-lg">📋</span>
                         </div>
-                        <p className="text-xs sm:text-sm text-burgundy-800 dark:text-gray-400 font-medium">Study Guides</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Study Guides</p>
                       </div>
                     </div>
                     <div className="bento-cta">
@@ -613,19 +613,19 @@ const Home = () => {
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <PenTool className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Grammar</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Grammar</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <MessageCircle className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Speaking</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Speaking</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Ear className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Listening</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Listening</p>
                       </div>
                     </div>
                     <div className="bento-cta">
@@ -659,14 +659,14 @@ const Home = () => {
                     <h3 className="bento-title">Phrase of the Day</h3>
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-semibold text-burgundy-900 dark:text-cream-50">"Petit à petit, l'oiseau fait son nid"</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-cream-50">"Petit à petit, l'oiseau fait son nid"</p>
                         <SpeakButton
                           text="Petit à petit, l'oiseau fait son nid"
                           size="sm"
                           variant="ghost"
                         />
                       </div>
-                      <p className="text-xs text-burgundy-800 dark:text-gray-400 italic">Little by little, the bird builds its nest</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 italic">Little by little, the bird builds its nest</p>
                     </div>
                     <div className="bento-cta">
                       <span>Daily Wisdom</span>
@@ -758,19 +758,19 @@ const Home = () => {
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Building className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Traditions</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Traditions</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <MessageCircle className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Dialects</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Dialects</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Theater className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Etiquette</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Etiquette</p>
                       </div>
                     </div>
                     <div className="bento-cta">
@@ -803,19 +803,19 @@ const Home = () => {
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <MapPin className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Regions</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Regions</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Wine className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Specialties</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Specialties</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <MessageCircle className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Dialects</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Dialects</p>
                       </div>
                     </div>
                     <div className="bento-cta">
@@ -848,19 +848,19 @@ const Home = () => {
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Film className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Movies</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Movies</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Music className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">Music</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Music</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 bg-burgundy-100 dark:bg-burgundy-vibrant-600 rounded-lg flex items-center justify-center mb-1">
                           <Tv className="w-4 h-4 text-burgundy-700 dark:text-cream-50" />
                         </div>
-                        <p className="text-xs text-burgundy-800 dark:text-gray-400">TV Shows</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">TV Shows</p>
                       </div>
                     </div>
                     <div className="bento-cta">
@@ -891,10 +891,10 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-burgundy-900 dark:text-cream-50 mb-3 sm:mb-4 transition-colors duration-300 px-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-cream-50 mb-3 sm:mb-4 transition-colors duration-300 px-2">
               Ready to Start Your French Journey?
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-burgundy-700 dark:text-gray-300 mb-6 sm:mb-8 transition-colors duration-300 px-2">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 transition-colors duration-300 px-2">
               Join thousands of learners who have improved their French with SayBonjour.
             </p>
             <motion.div
