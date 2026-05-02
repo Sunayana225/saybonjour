@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { AuthProvider } from './context/AuthContext'
@@ -6,6 +6,7 @@ import { UserProvider } from './context/UserContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { AccessibilityProvider } from './context/AccessibilityContext'
 import { I18nProvider } from './context/i18nContext'
+import AnnouncementBar from './components/AnnouncementBar'
 import AccountSettings from './pages/AccountSettings'
 import LearningPath from './pages/LearningPath'
 import StudyHistory from './pages/StudyHistory'
@@ -61,6 +62,9 @@ const DailyLoginReward = () => {
 }
 
 function App() {
+  const [barVisible, setBarVisible] = useState(false)
+  const handleBarVisibility = useCallback((v) => setBarVisible(v), [])
+
   return (
     <HelmetProvider>
       <ThemeProvider>
@@ -72,7 +76,8 @@ function App() {
               <DailyLoginReward />
               <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300 transition-colors duration-300">
                 <Navbar />
-                <main className="pt-[60px]">
+                <AnnouncementBar onVisibilityChange={handleBarVisibility} />
+                <main style={{ paddingTop: barVisible ? '96px' : '60px' }}>
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/resources" element={<Resources />} />
