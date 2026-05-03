@@ -460,6 +460,15 @@
     color: #fffcef;
   }
 
+  .bento-streak-number {
+    color: #660019;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dark .bento-streak-number {
+    color: #fffcef;
+  }
+
   .bento-cta {
     @apply inline-flex items-center text-sm font-medium transition-colors duration-200;
     color: #660019;

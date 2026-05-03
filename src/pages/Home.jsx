@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { BookOpen, Brain, Bookmark, MapPin, ArrowRight, Award, Play, TrendingUp, Globe, Zap, Heart, Users, Film, Lightbulb, Map, FileText, PenTool, MessageCircle, Ear, Building, Theater, Wine, Music, Tv } from 'lucide-react'
+import { BookOpen, Brain, Bookmark, MapPin, ArrowRight, Award, Play, TrendingUp, Globe, Zap, Heart, Users, Film, Lightbulb, Map, FileText, PenTool, MessageCircle, Ear, Building, Theater, Wine, Music, Tv, Flame } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SEO from '../components/SEO'
 import SpeakButton from '../components/SpeakButton'
+import { updateAndGetStreak, getStreakMotivation, getStreakEmoji } from '../utils/streak'
 
 const TypewriterText = ({ text, delay = 0 }) => {
   const [displayText, setDisplayText] = useState('')
@@ -35,6 +36,12 @@ const TypewriterText = ({ text, delay = 0 }) => {
 
 
 const Home = () => {
+  const [streak, setStreak] = useState({ currentStreak: 0, longestStreak: 0 })
+
+  useEffect(() => {
+    setStreak(updateAndGetStreak())
+  }, [])
+
   const particles = useMemo(() => Array.from({ length: 15 }, () => ({
     left: Math.random() * 100,
     top: Math.random() * 100,
@@ -639,7 +646,42 @@ const Home = () => {
             {/* Quick Access Tools Section */}
             <div>
               <h3 className="category-header">Quick Access</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+
+                {/* Daily Streak */}
+                <Link to="/quizzes" className="block">
+                  <motion.div
+                    className="bento-card-tools h-full"
+                    initial={{ opacity: 1, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="bento-icon-tools">
+                      <Flame className="w-6 h-6 text-cream-50" />
+                    </div>
+                    <h3 className="bento-title">Daily Streak</h3>
+                    <div className="flex items-end gap-3 mb-3">
+                      <span className="text-5xl font-extrabold leading-none bento-streak-number">
+                        {streak.currentStreak}
+                      </span>
+                      <div className="pb-1">
+                        <p className="bento-label font-semibold leading-tight">day{streak.currentStreak !== 1 ? 's' : ''}</p>
+                        <p className="bento-label leading-tight">in a row {getStreakEmoji(streak.currentStreak)}</p>
+                      </div>
+                    </div>
+                    <p className="bento-description mb-3">{getStreakMotivation(streak.currentStreak)}</p>
+                    {streak.longestStreak > 0 && (
+                      <p className="bento-label mb-4">Best streak: <span className="font-semibold">{streak.longestStreak} day{streak.longestStreak !== 1 ? 's' : ''}</span></p>
+                    )}
+                    <div className="bento-cta">
+                      <span>Keep Learning</span>
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </motion.div>
+                </Link>
 
                 {/* Phrase of the Day */}
                 <Link to="/phrase-of-the-day" className="block">
