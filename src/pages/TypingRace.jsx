@@ -555,6 +555,11 @@ export default function TypingRace() {
           </div>
 
           <div className="px-6 py-10 lg:px-12 lg:py-10 max-w-2xl">
+            <div className="hidden lg:block mb-2">
+              <Link to="/games" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-burgundy-600 dark:hover:text-burgundy-400 transition-colors group">
+                <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Games Hub
+              </Link>
+            </div>
             <AnimatePresence mode="wait">
               {view.type === 'welcome' && (
                 <motion.div key="welcome" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>

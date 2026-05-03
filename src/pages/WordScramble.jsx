@@ -173,11 +173,11 @@ export default function WordScramble() {
               {!result && (
                 <>
                   <button onClick={() => { setAnswer([]); setTiles(t => t.map(tl => ({ ...tl, used: false }))) }} className="btn-secondary text-sm">Clear</button>
-                  <button onClick={reshuffleTiles} className="btn-secondary text-sm flex items-center gap-1"><Shuffle size="sm" /> Shuffle</button>
+                  <button onClick={reshuffleTiles} className="btn-secondary text-sm flex items-center gap-1"><Shuffle className="w-4 h-4" /> Shuffle</button>
                   <button onClick={checkAnswer} disabled={answer.length !== current.word.length} className="btn-primary text-sm disabled:opacity-50">Check</button>
                 </>
               )}
-              {result && <button onClick={next} className="btn-primary text-sm flex items-center gap-2"><RotateCcw size="sm" /> Next Word</button>}
+              {result && <button onClick={next} className="btn-primary text-sm flex items-center gap-2"><RotateCcw className="w-4 h-4" /> Next Word</button>}
             </div>
           </div>
         )}

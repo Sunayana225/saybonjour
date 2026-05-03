@@ -160,7 +160,7 @@ export default function Hangman() {
           {!isWon && !isLost && (
             <div className="flex justify-center gap-2 mb-4">
               <button onClick={() => setShowHint(true)} className="flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-700">
-                <Lightbulb size="sm" /> {showHint ? wordObj.hint : 'Show hint'}
+                <Lightbulb className="w-4 h-4" /> {showHint ? wordObj.hint : 'Show hint'}
               </button>
             </div>
           )}
@@ -199,8 +199,8 @@ export default function Hangman() {
           </div>
 
           <div className="flex gap-3 mt-4 justify-center">
-            <button onClick={pickWord} className="btn-secondary flex items-center gap-2 text-sm"><RotateCcw size="sm" /> New Word</button>
-            {isLost && <button onClick={() => setRevealed(true)} className="btn-secondary flex items-center gap-2 text-sm"><BookOpen size="sm" /> Reveal</button>}
+            <button onClick={pickWord} className="btn-secondary flex items-center gap-2 text-sm"><RotateCcw className="w-4 h-4" /> New Word</button>
+            {isLost && <button onClick={() => setRevealed(true)} className="btn-secondary flex items-center gap-2 text-sm"><BookOpen className="w-4 h-4" /> Reveal</button>}
           </div>
         </div>
         <p className="text-center text-xs text-gray-400 mt-3">Tip: You can also use your keyboard!</p>
