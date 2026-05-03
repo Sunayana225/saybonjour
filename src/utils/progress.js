@@ -1,4 +1,5 @@
 import { getHappyHourMultiplierBonus } from './happyHour'
+import { addFreeze } from './streakFreeze'
 
 const PROGRESS_KEY = 'saybonjour_progress'
 
@@ -120,6 +121,10 @@ const updateStreak = (progress) => {
     progress.streak = 1
   }
   progress.lastStudyDate = today
+
+  if (progress.streak > 0 && progress.streak % 7 === 0) {
+    addFreeze()
+  }
 }
 
 const BADGES = [

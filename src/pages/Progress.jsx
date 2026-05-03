@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Flame, Star, Award, TrendingUp, BookOpen, Brain, Zap, Target, BarChart2, Trophy, PieChart, Calendar } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Flame, Star, Award, TrendingUp, BookOpen, Brain, Zap, Target, BarChart2, Trophy, PieChart, Calendar, Snowflake, Clock } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getProgress, getAllBadges, getXPForNextLevel, getRank, RANKS, getXPMultiplier } from '../utils/progress'
+import { getHappyHourStatus, formatMins } from '../utils/happyHour'
+import { getFreezesCount, activateFreeze } from '../utils/streakFreeze'
 import SEO from '../components/SEO'
 
 const cefrColors = {
@@ -282,14 +284,36 @@ const XPMultiplierBadge = ({ streak }) => {
 
 const Progress = () => {
   const [progress, setProgress] = useState(null)
+  const [happyHour, setHappyHour] = useState(() => getHappyHourStatus())
+  const [freezes, setFreezes] = useState(() => getFreezesCount())
+  const [freezeMsg, setFreezeMsg] = useState(null)
   const allBadges = getAllBadges()
 
   useEffect(() => {
     setProgress(getProgress())
-    const handler = () => setProgress(getProgress())
+    const handler = () => { setProgress(getProgress()); setFreezes(getFreezesCount()) }
     window.addEventListener('progressUpdated', handler)
     return () => window.removeEventListener('progressUpdated', handler)
   }, [])
+
+  useEffect(() => {
+    const tick = () => setHappyHour(getHappyHourStatus())
+    const id = setInterval(tick, 30000)
+    return () => clearInterval(id)
+  }, [])
+
+  const handleActivateFreeze = () => {
+    const ok = activateFreeze()
+    if (ok) {
+      setFreezes(getFreezesCount())
+      setFreezeMsg('Freeze activated! Your streak is protected for today.')
+    } else if (getFreezesCount() <= 0) {
+      setFreezeMsg('No freezes available. Earn one by hitting a 7-day streak!')
+    } else {
+      setFreezeMsg("You've already studied today — your streak is safe!")
+    }
+    setTimeout(() => setFreezeMsg(null), 4000)
+  }
 
   if (!progress) return null
 
@@ -420,6 +444,51 @@ const Progress = () => {
             <ActivityHeatmap dailyXP={progress.dailyXP} />
           </motion.div>
 
+          {/* Happy Hour card */}
+          <motion.div
+            className={`rounded-2xl border shadow-sm p-5 ${happyHour.active
+              ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700'
+              : 'bg-white dark:bg-dark-warm-100 border-cream-200 dark:border-dark-warm-50'}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.13 }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${happyHour.active ? 'bg-amber-400' : 'bg-gray-100 dark:bg-dark-warm-200'}`}>
+                  <Zap className={`w-5 h-5 ${happyHour.active ? 'text-white' : 'text-gray-400'}`} />
+                </div>
+                <div>
+                  <h2 className="font-bold text-gray-800 dark:text-cream-50 text-sm">
+                    {happyHour.active ? `⚡ Happy Hour: ${happyHour.label}` : 'Happy Hour 2× XP'}
+                  </h2>
+                  {happyHour.active ? (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                      Active now — all XP doubled! Ends in {formatMins(happyHour.endsInMins)}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Next: {happyHour.label} in {formatMins(happyHour.minsUntilNext)}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {happyHour.active && (
+                <span className="text-xs font-black px-2.5 py-1 rounded-full bg-amber-400 text-white shadow">2× XP</span>
+              )}
+              {!happyHour.active && (
+                <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{formatMins(happyHour.minsUntilNext)}</span>
+                </div>
+              )}
+            </div>
+            <div className="mt-3 flex gap-2 text-[11px] text-gray-400 dark:text-gray-500">
+              <span className="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium">6–9 AM Morning Boost</span>
+              <span className="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium">12–2 PM Lunch Rush</span>
+            </div>
+          </motion.div>
+
           {/* Streak calendar */}
           <motion.div
             className="bg-white dark:bg-dark-warm-100 rounded-2xl border border-cream-200 dark:border-dark-warm-50 shadow-sm p-6"
@@ -442,6 +511,47 @@ const Progress = () => {
             {progress.streak >= 7 && (
               <p className="text-sm text-red-600 mt-3 font-bold">🔥🔥 3x XP active! Amazing streak — keep it up!</p>
             )}
+
+            {/* Streak Freeze */}
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-warm-50">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Snowflake className="w-4 h-4 text-blue-400 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Streak Freezes
+                      <span className={`ml-2 text-xs font-bold px-1.5 py-0.5 rounded-full ${freezes > 0 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-gray-100 text-gray-400'}`}>
+                        {freezes}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Earn 1 freeze per 7-day streak milestone</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleActivateFreeze}
+                  disabled={freezes <= 0}
+                  className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    freezes > 0
+                      ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
+                      : 'bg-gray-100 dark:bg-dark-warm-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Activate
+                </button>
+              </div>
+              <AnimatePresence>
+                {freezeMsg && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium"
+                  >
+                    {freezeMsg}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
 
           {/* Weekly XP chart */}

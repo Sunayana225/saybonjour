@@ -35,6 +35,7 @@ import VerifyEmail from './pages/VerifyEmail'
 import VerificationBanner from './components/VerificationBanner'
 import StreakSaver from './components/StreakSaver'
 import ProgressSyncToast from './components/ProgressSyncToast'
+import LevelUpToast from './components/LevelUpToast'
 import Profile from './pages/Profile'
 import Onboarding from './pages/Onboarding'
 import DailyChallenges from './pages/DailyChallenges'
@@ -195,6 +196,7 @@ function App() {
           <UserProvider>
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <DailyLoginReward />
+              <LevelUpToast />
               <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300 transition-colors duration-300">
                 <Navbar />
                 <AnnouncementBar onVisibilityChange={handleBarVisibility} />

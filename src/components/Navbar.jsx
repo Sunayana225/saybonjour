@@ -224,6 +224,7 @@ const Navbar = () => {
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [xp, setXp] = useState(0)
   const [streak, setStreak] = useState(0)
+  const [level, setLevel] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
@@ -261,7 +262,7 @@ const Navbar = () => {
   }, [])
 
   useEffect(() => {
-    const update = () => { const p = getProgress(); setXp(p.xp); setStreak(p.streak) }
+    const update = () => { const p = getProgress(); setXp(p.xp); setStreak(p.streak); setLevel(p.level) }
     update()
     window.addEventListener('progressUpdated', update)
     return () => window.removeEventListener('progressUpdated', update)
@@ -683,10 +684,22 @@ const Navbar = () => {
                         transition={{ duration: 0.13 }}
                         className="absolute right-0 top-full mt-2 w-52 bg-gray-900 rounded-xl shadow-xl border border-gray-700 z-50 py-2"
                       >
-                        <div className="px-4 py-2 border-b border-gray-700 mb-1">
+                        <div className="px-4 py-2.5 border-b border-gray-700 mb-1">
                           <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                           <p className="text-xs text-gray-400 truncate">{user.email}</p>
-                          <p className="text-xs text-amber-500 font-medium mt-0.5">{xp} XP total</p>
+                          <div className="mt-2">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-[10px] font-semibold text-amber-400">Lv.{level}</span>
+                              <span className="text-[10px] text-gray-500">{xp} / {level * 500} XP</span>
+                            </div>
+                            <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-500"
+                                style={{ width: `${Math.min(100, ((xp - (level - 1) * 500) / 500) * 100)}%` }}
+                              />
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{Math.max(0, level * 500 - xp)} XP to Lv.{level + 1}</p>
+                          </div>
                         </div>
                         <Link to="/profile" onClick={() => setIsUserOpen(false)}
                           className="flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors">

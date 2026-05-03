@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trophy, Zap, Flame, Star, Crown, Users, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import { Trophy, Zap, Flame, Star, Crown, Users, RefreshCw, Wifi, WifiOff, Share2, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { getProgress, getRank, RANKS } from '../utils/progress'
@@ -50,6 +50,7 @@ export default function Leaderboard() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [copied, setCopied] = useState(false)
   const [localProgress] = useState(() => getProgress())
   const { user } = useUser()
 
@@ -142,13 +143,31 @@ export default function Leaderboard() {
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Streak</p>
             </div>
           </div>
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
             <RankBadge xp={myXP} />
-            {myWeeklyXP > 0 && (
-              <span className="text-xs font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Zap className="w-3 h-3" /> +{myWeeklyXP.toLocaleString()} XP this week
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {myWeeklyXP > 0 && (
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> +{myWeeklyXP.toLocaleString()} XP this week
+                </span>
+              )}
+              <button
+                onClick={() => {
+                  const pos = myPosition('allTime', 'xp')
+                  const text = `I'm ranked #${pos ?? '?'} on SayBonjour! 🇫🇷 with ${myXP.toLocaleString()} XP and a ${myStreak}-day streak. Come learn French with me! ${window.location.origin}/leaderboard`
+                  navigator.clipboard.writeText(text).then(() => {
+                    setCopied(true)
+                    setTimeout(() => setCopied(false), 2500)
+                  })
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-dark-warm-200 text-gray-600 dark:text-gray-300 hover:bg-burgundy-50 dark:hover:bg-burgundy-900/20 hover:text-burgundy-600 transition-all"
+              >
+                {copied
+                  ? <><Check className="w-3 h-3 text-emerald-500" /><span className="text-emerald-600">Copied!</span></>
+                  : <><Share2 className="w-3 h-3" />Share</>
+                }
+              </button>
+            </div>
           </div>
           {!user && (
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
