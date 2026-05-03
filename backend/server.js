@@ -12,6 +12,7 @@ import helmet from 'helmet'
 import { body, validationResult } from 'express-validator'
 import morgan from 'morgan'
 import multer from 'multer'
+import { Resend } from 'resend'
 import {
   generateSitemap,
   generateRobotsTxt,
@@ -1385,26 +1386,71 @@ app.put('/api/users/change-password', authenticateUser, (req, res) => {
   }
 })
 
-app.post('/api/users/forgot-password', (req, res) => {
+app.post('/api/users/forgot-password', async (req, res) => {
   const { email } = req.body
   if (!email) return res.status(400).json({ message: 'Email is required' })
   try {
     const db = new Database(path.join(__dirname, 'french_learning.db'))
-    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase())
+    const user = db.prepare('SELECT id, name FROM users WHERE email = ?').get(email.toLowerCase())
     if (!user) {
       db.close()
-      // Don't reveal whether email exists — but since no email service, give the link anyway to be usable
-      return res.status(404).json({ message: 'No account found with that email address.' })
+      // Security: always respond with success to avoid leaking whether an email exists
+      return res.json({ message: 'If an account with that email exists, a reset link has been sent.' })
     }
     const token = crypto.randomBytes(32).toString('hex')
     const expiry = Date.now() + 60 * 60 * 1000 // 1 hour
     db.prepare('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?').run(token, expiry, user.id)
     db.close()
-    const resetUrl = `/reset-password?token=${token}`
-    res.json({ message: 'Reset link generated', resetUrl })
+
+    const appUrl = process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : `${req.protocol}://${req.get('host')}`
+    const resetUrl = `${appUrl}/reset-password?token=${token}`
+    const firstName = user.name ? user.name.split(' ')[0] : 'there'
+
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      await resend.emails.send({
+        from: 'SayBonjour! <onboarding@resend.dev>',
+        to: email.toLowerCase(),
+        subject: 'Reset your SayBonjour! password',
+        html: `
+          <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #1a1a1a;">
+            <div style="background: linear-gradient(135deg, #6b1d1d, #9b2c2c); padding: 32px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #fff; font-size: 26px; margin: 0; letter-spacing: 0.5px;">SayBonjour!</h1>
+              <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 2px;">French Learning Platform</p>
+            </div>
+            <div style="background: #ffffff; padding: 36px 40px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+              <p style="font-size: 17px; margin: 0 0 8px;">Bonjour ${firstName},</p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6; margin: 0 0 24px;">
+                We received a request to reset your password. Click the button below — this link is valid for <strong>1 hour</strong>.
+              </p>
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="${resetUrl}" style="background: #7f1d1d; color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; display: inline-block;">
+                  Reset My Password
+                </a>
+              </div>
+              <p style="font-size: 13px; color: #9ca3af; line-height: 1.6; margin: 24px 0 0;">
+                If you didn't request this, you can safely ignore this email — your password won't change.<br><br>
+                Or copy this link into your browser:<br>
+                <a href="${resetUrl}" style="color: #7f1d1d; word-break: break-all; font-size: 12px;">${resetUrl}</a>
+              </p>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: #d1d5db; margin-top: 16px;">
+              © ${new Date().getFullYear()} SayBonjour! — Bonne chance avec votre français !
+            </p>
+          </div>
+        `
+      })
+      console.log(`Password reset email sent to ${email}`)
+    } else {
+      console.warn('RESEND_API_KEY not set — reset link:', resetUrl)
+    }
+
+    res.json({ message: 'If an account with that email exists, a reset link has been sent.' })
   } catch (e) {
     console.error('Forgot password error:', e)
-    res.status(500).json({ message: 'Failed to generate reset link' })
+    res.status(500).json({ message: 'Failed to send reset email. Please try again.' })
   }
 })
 
