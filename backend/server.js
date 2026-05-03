@@ -33,13 +33,20 @@ const app = express()
 app.set('trust proxy', 1)
 
 const PORT = process.env.PORT || 3001
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex')
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  console.warn('⚠️  WARNING: JWT_SECRET not set in environment variables. Using random secret.')
+  return crypto.randomBytes(64).toString('hex')
+})()
 
-// Admin credentials — use env vars when set, otherwise use fallback defaults
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin'
-// Hash of 'admin123' (pbkdf2, salt='salt', 1000 iter, 64 bytes, sha512)
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ||
-  'e3785eb127967978875a4fc31f738cef248a4578a242300114fab5550e76190690d32a8b96e26b3b2e6efb7f78b5e633b8392eb2c8a341d5cc8c619c7fd9b145'
+// Admin credentials — MUST use env vars in production
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH
+
+// Validate that required environment variables are set
+if (!ADMIN_USERNAME || !ADMIN_PASSWORD_HASH) {
+  console.error('❌ ERROR: ADMIN_USERNAME and ADMIN_PASSWORD_HASH must be set in environment variables')
+  process.exit(1)
+}
 
 // Helper function to hash passwords
 const hashPassword = (password) => {
