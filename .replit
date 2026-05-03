@@ -14,6 +14,7 @@ NODE_ENV = "development"
 JWT_SECRET = "75001ac3cb6cee4a84215b43be930fccad6319964a49e1446701c38a139c4bf52ae45ce98a9f9d064193db907f28aeaf96363de1a9219a121967f42485c73ea3"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD_HASH = "e3785eb127967978875a4fc31f738cef248a4578a242300114fab5550e76190690d32a8b96e26b3b2e6efb7f78b5e633b8392eb2c8a341d5cc8c619c7fd9b145"
+USER_JWT_SECRET = "1fd28e8065f854d0db95cb54c027e4d9956e341bb206abc780c1537732cfed0edd3b083028ede424b1526369ac99e9549c3f6872ac5245c66119d8df557cb92a"
 
 [workflows]
 runButton = "Project"
@@ -31,13 +32,13 @@ args = "Start application"
 name = "Start application"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev:full"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[ports]]
 localPort = 3001
