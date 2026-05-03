@@ -154,6 +154,13 @@ import FrenchSubjunctive from './pages/FrenchSubjunctive'
 import FrenchPassiveVoice from './pages/FrenchPassiveVoice'
 import FrenchConversationTopics from './pages/FrenchConversationTopics'
 import FrenchRegionalFrance from './pages/FrenchRegionalFrance'
+import FrenchSocialMedia from './pages/FrenchSocialMedia'
+import FrenchPoliticsVocab from './pages/FrenchPoliticsVocab'
+import FrenchTimeExpressions from './pages/FrenchTimeExpressions'
+import FrenchCinema from './pages/FrenchCinema'
+import FrenchWeather2 from './pages/FrenchWeather2'
+import FrenchColors2 from './pages/FrenchColors2'
+import FrenchTransport2 from './pages/FrenchTransport2'
 import { claimDailyLoginReward } from './utils/progress'
 
 const DailyLoginReward = () => {
@@ -333,6 +340,13 @@ function App() {
                     <Route path="/french-passive-voice" element={<FrenchPassiveVoice />} />
                     <Route path="/french-conversation-topics" element={<FrenchConversationTopics />} />
                     <Route path="/french-regions" element={<FrenchRegionalFrance />} />
+                    <Route path="/french-social-media" element={<FrenchSocialMedia />} />
+                    <Route path="/french-politics" element={<FrenchPoliticsVocab />} />
+                    <Route path="/french-time-expressions" element={<FrenchTimeExpressions />} />
+                    <Route path="/french-cinema" element={<FrenchCinema />} />
+                    <Route path="/french-weather" element={<FrenchWeather2 />} />
+                    <Route path="/french-colors-guide" element={<FrenchColors2 />} />
+                    <Route path="/french-transport" element={<FrenchTransport2 />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
