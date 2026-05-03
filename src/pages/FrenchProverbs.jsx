@@ -199,7 +199,7 @@ export default function FrenchProverbs() {
 
   const randomize = () => {
     const candidates = PROVERBS.filter(p => (cat === 'All' || p.category === cat) && (level === 'All' || p.level === level))
-    if (candidates.length) setDaily(candidates[Math.floor(Math.random() * candidates.length)])
+    if (candidates.length) { setDaily(candidates[Math.floor(Math.random() * candidates.length)]); addXP(2, 'vocabulary') }
   }
 
   return (
@@ -259,7 +259,7 @@ export default function FrenchProverbs() {
             return (
               <motion.div key={p.fr} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                 className="bg-white dark:bg-dark-warm-100 rounded-xl shadow border border-gray-100 dark:border-dark-warm-50 overflow-hidden">
-                <button onClick={() => { setExpanded(isOpen ? null : p.fr) }}
+                <button onClick={() => { setExpanded(isOpen ? null : p.fr); if (!isOpen) addXP(2, 'vocabulary') }}
                   className="w-full text-left px-5 py-4 flex items-start gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-1">

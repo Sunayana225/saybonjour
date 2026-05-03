@@ -99,7 +99,7 @@ export default function FrenchEtiquette() {
         </div>
 
         <div className="flex gap-3 mb-6 flex-wrap">
-          {[{ id: 'rules', label: 'Etiquette Rules' }, { id: 'phrases', label: 'Polite Phrases' }].map(t => (
+          {[{ id: 'rules', label: 'Etiquette Rules' }, { id: 'phrases', label: 'Polite Phrases' }, { id: 'fauxpas', label: 'Faux Pas to Avoid' }].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${tab === t.id ? 'bg-burgundy-600 text-white' : 'bg-white dark:bg-dark-warm-100 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-dark-warm-50 hover:border-burgundy-300'}`}>
               {t.label}
@@ -146,6 +146,42 @@ export default function FrenchEtiquette() {
                   <p className="font-medium text-sm italic text-gray-800 dark:text-cream-50">"{p.fr}"</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{p.en}</p>
                   {p.note && <p className="text-xs text-amber-600 dark:text-amber-400 italic mt-0.5">💡 {p.note}</p>}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {tab === 'fauxpas' && (
+          <div className="space-y-4">
+            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3 text-sm text-red-800 dark:text-red-300 mb-2">
+              These are real social mistakes that foreigners (and sometimes French people from other regions) make in France. Knowing them helps you avoid awkwardness.
+            </div>
+            {[
+              { title: 'Entering a shop without saying "Bonjour"', severity: 'High', detail: 'This is the single biggest mistake. Every French person you speak to — shop assistant, pharmacist, doctor\'s receptionist, boulangère — expects "Bonjour" first. Starting with "Excuse me..." or immediately asking your question feels abrupt and rude. "Bonjour Madame/Monsieur" buys you enormous goodwill.' },
+              { title: 'Using "tu" too soon with strangers', severity: 'High', detail: '"Tu" with someone you\'ve just met can feel presumptuous or even insolent — especially with older people, professionals, or people in service roles. Always start with "vous" and wait to be invited. "On peut se tutoyer ?" = "Shall we use tu?"' },
+              { title: 'Splitting restaurant bills down to the euro', severity: 'Medium', detail: 'In France, it\'s common for one person to pay and for others to pay them back later, or to split roughly. Going through every item on the bill to calculate exact individual amounts is seen as petty ("radin"). Round up generously, or take turns paying.' },
+              { title: 'Cutting the tip off a wedge of cheese', severity: 'Medium', detail: 'The pointed tip ("la pointe") of a wedge of cheese concentrates the strongest flavour. Cutting it off for yourself is considered greedy and bad manners. Always slice parallel to the cut face — you take a proportional wedge, not the best part.' },
+              { title: 'Bringing red roses to a host', severity: 'Medium', detail: 'Red roses are romantic — bringing them to your host\'s wife suggests you\'re attracted to her, not grateful for dinner. Yellow flowers can suggest infidelity. Safe flowers: white roses, mixed bouquet. Safe gifts: good wine, high-quality chocolates.' },
+              { title: 'Bringing chrysanthemums', severity: 'High', detail: '"Les chrysanthèmes" are funeral flowers in France — placed on graves on Toussaint (All Saints\' Day, November 1st). Bringing a bunch to a dinner party is a genuine faux pas. Stick to spring or summer flowers.' },
+              { title: 'Asking "Comment ça va ?" without expecting a real answer', severity: 'Low', detail: '"Ça va ?" is a greeting more than a question — the expected response is "Ça va, et toi ?" But French people can sometimes give a genuine, lengthy response about their health, work, and feelings. Don\'t look surprised — they feel you asked.' },
+              { title: 'Smiling at strangers in the street', severity: 'Low', detail: 'In France, unprompted smiles at strangers can seem odd, empty, or flirtatious — quite different from the US or Canada. Smiling in context (when addressed, in conversation) is completely natural. Street smiles feel hollow to many French people.' },
+              { title: 'Pouring your own drink at a dinner party', severity: 'Medium', detail: 'At a formal or semi-formal French dinner, you don\'t pour your own wine. You wait for the host or your neighbour to pour. Pouring your own (especially if it\'s the last of a bottle) seems greedy. Instead: offer to pour for others first.' },
+              { title: 'Discussing salary or money openly', severity: 'High', detail: 'Money is deeply private in France. Asking what someone earns — even close friends — is genuinely intrusive. Mentioning the price of your holiday, your home, or your car can seem vulgar. The French are far more discrete about wealth than Anglo-Americans.' },
+            ].map((item, i) => (
+              <motion.div key={item.title} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className="bg-white dark:bg-dark-warm-100 rounded-2xl shadow border border-gray-100 dark:border-dark-warm-50 p-5"
+                onClick={() => addXP(3, 'vocabulary')}>
+                <div className="flex items-start gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h3 className="font-bold text-gray-900 dark:text-cream-50 font-playfair">{item.title}</h3>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.severity === 'High' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' : item.severity === 'Medium' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' : 'bg-gray-100 text-gray-500 dark:bg-dark-warm-200 dark:text-gray-400'}`}>
+                        {item.severity} impact
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.detail}</p>
+                  </div>
                 </div>
               </motion.div>
             ))}

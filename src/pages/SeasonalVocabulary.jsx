@@ -129,7 +129,7 @@ export default function SeasonalVocabulary() {
 
         <div className="grid grid-cols-4 gap-3 mb-8">
           {Object.keys(SEASONS).map(s => (
-            <button key={s} onClick={() => setActive(s)}
+            <button key={s} onClick={() => { setActive(s); addXP(3, 'vocabulary') }}
               className={`py-4 rounded-2xl text-center border-2 transition-colors ${active === s ? LEVEL_COLORS[s] : 'bg-white dark:bg-dark-warm-100 border-gray-200 dark:border-dark-warm-50 hover:border-gray-300'}`}>
               <div className="text-3xl mb-1">{SEASONS[s].emoji}</div>
               <div className="font-bold text-sm text-gray-800 dark:text-cream-50">{s}</div>

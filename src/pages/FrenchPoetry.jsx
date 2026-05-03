@@ -217,7 +217,7 @@ export default function FrenchPoetry() {
 
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {POEMS.map((p, i) => (
-            <button key={p.title} onClick={() => { setSelected(i); setShowTranslation(false) }}
+            <button key={p.title} onClick={() => { setSelected(i); setShowTranslation(false); addXP(3, 'vocabulary') }}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${selected === i ? 'bg-burgundy-600 text-white' : 'bg-white dark:bg-dark-warm-100 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-dark-warm-50 hover:border-burgundy-300'}`}>
               {p.author}
             </button>
@@ -257,7 +257,7 @@ export default function FrenchPoetry() {
               )}
             </div>
 
-            <button onClick={() => setShowTranslation(t => !t)}
+            <button onClick={() => { setShowTranslation(t => !t); addXP(4, 'vocabulary') }}
               className="mt-6 px-4 py-2 bg-cream-50 dark:bg-dark-warm-200 border border-gray-200 dark:border-dark-warm-50 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:border-burgundy-300 transition-colors">
               {showTranslation ? 'Hide translation' : 'Show English translation'}
             </button>

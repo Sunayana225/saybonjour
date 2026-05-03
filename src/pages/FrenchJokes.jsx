@@ -6,6 +6,7 @@ import { getContent } from '../utils/contentStore'
 const frenchJokes = getContent('jokes')
 import SEO from '../components/SEO'
 import SpeakButton from '../components/SpeakButton'
+import { addXP } from '../utils/progress'
 
 const CATEGORY_COLORS = {
   Puns:      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
@@ -29,14 +30,15 @@ export default function FrenchJokes() {
 
   const filtered = selectedCategory === 'All' ? jokes : jokes.filter(j => j.category === selectedCategory)
 
-  const toggleReveal  = (id) => setRevealed(p      => ({ ...p, [id]: !p[id] }))
-  const toggleVocab   = (id) => setExpandedVocab(p  => ({ ...p, [id]: !p[id] }))
+  const toggleReveal  = (id) => { setRevealed(p => ({ ...p, [id]: !p[id] })); addXP(3, 'vocabulary') }
+  const toggleVocab   = (id) => { setExpandedVocab(p => ({ ...p, [id]: !p[id] })); addXP(2, 'vocabulary') }
 
   const handleShuffle = () => {
     setJokes(prev => [...prev].sort(() => Math.random() - 0.5))
     setRevealed({})
     setExpandedVocab({})
     setShuffled(true)
+    addXP(2, 'vocabulary')
     setTimeout(() => setShuffled(false), 800)
   }
 
