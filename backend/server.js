@@ -1772,6 +1772,58 @@ app.put('/api/users/progress-sync', authenticateUser, (req, res) => {
   }
 })
 
+app.get('/api/leaderboard', (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const rows = db.prepare('SELECT id, name, avatar_url, progress_data, created_at FROM users').all()
+    db.close()
+
+    const today = new Date()
+    const dayOfWeek = today.getDay()
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    const monday = new Date(today)
+    monday.setDate(today.getDate() + diffToMonday)
+    monday.setHours(0, 0, 0, 0)
+    const mondayStr = monday.toISOString().split('T')[0]
+
+    const entries = rows.map(row => {
+      let xp = 0, streak = 0, level = 1, weeklyXp = 0
+      if (row.progress_data) {
+        try {
+          const p = JSON.parse(row.progress_data)
+          xp = p.xp || 0
+          streak = p.streak || 0
+          level = p.level || Math.floor(xp / 500) + 1
+          if (Array.isArray(p.weeklyXP)) {
+            weeklyXp = p.weeklyXP
+              .filter(e => e.date >= mondayStr)
+              .reduce((sum, e) => sum + (e.xp || 0), 0)
+          }
+        } catch {}
+      }
+      return {
+        id: row.id,
+        name: row.name,
+        avatar_url: row.avatar_url || null,
+        xp,
+        weeklyXp,
+        streak,
+        level,
+        joinedAt: row.created_at,
+      }
+    }).filter(e => e.xp > 0 || e.weeklyXp > 0)
+
+    const allTime = [...entries].sort((a, b) => b.xp - a.xp).slice(0, 50)
+    const weekly  = [...entries].filter(e => e.weeklyXp > 0).sort((a, b) => b.weeklyXp - a.weeklyXp).slice(0, 50)
+    const streaks = [...entries].filter(e => e.streak > 0).sort((a, b) => b.streak - a.streak).slice(0, 50)
+
+    res.json({ allTime, weekly, streaks })
+  } catch (e) {
+    console.error('Leaderboard error:', e)
+    res.status(500).json({ message: 'Failed to fetch leaderboard' })
+  }
+})
+
 app.post('/api/users/auth/google', async (req, res) => {
   const { credential } = req.body
   if (!credential) return res.status(400).json({ message: 'Google credential required' })

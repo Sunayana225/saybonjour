@@ -1,28 +1,31 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Trophy, Zap, Flame, Medal, Crown, Star } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Trophy, Zap, Flame, Star, Crown, Users, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { getProgress, getRank, RANKS } from '../utils/progress'
 import { useUser } from '../context/UserContext'
 
-const DEMO_USERS = [
-  { name: 'Sophie Martin', xp: 12450, streak: 45, country: '🇫🇷', badge: '💎', level: 25 },
-  { name: 'Lucas Bernard', xp: 9870, streak: 32, country: '🇬🇧', badge: '🌟', level: 20 },
-  { name: 'Emma Wilson', xp: 8210, streak: 28, country: '🇺🇸', badge: '⚡', level: 17 },
-  { name: 'Thomas Dubois', xp: 7650, streak: 21, country: '🇨🇦', badge: '🔥', level: 16 },
-  { name: 'Camille Leroy', xp: 6540, streak: 19, country: '🇧🇪', badge: '🎓', level: 14 },
-  { name: 'James Taylor', xp: 5980, streak: 15, country: '🇦🇺', badge: '📚', level: 12 },
-  { name: 'Amélie Petit', xp: 5210, streak: 12, country: '🇫🇷', badge: '🌺', level: 11 },
-  { name: 'Oliver Smith', xp: 4870, streak: 10, country: '🇬🇧', badge: '🎯', level: 10 },
-  { name: 'Isabelle Moreau', xp: 4120, streak: 8, country: '🇨🇭', badge: '🦋', level: 9 },
-  { name: 'Noah Johnson', xp: 3650, streak: 7, country: '🇺🇸', badge: '🌸', level: 8 },
-  { name: 'Chloé Dupont', xp: 3210, streak: 6, country: '🇫🇷', badge: '🌿', level: 7 },
-  { name: 'Liam Anderson', xp: 2890, streak: 5, country: '🇨🇦', badge: '⭐', level: 6 },
-  { name: 'Manon Blanc', xp: 2340, streak: 4, country: '🇧🇪', badge: '✨', level: 5 },
-  { name: 'Ethan Brown', xp: 1980, streak: 3, country: '🇺🇸', badge: '🎸', level: 4 },
+const TABS = [
+  { id: 'allTime', label: 'All Time', icon: Crown },
+  { id: 'weekly', label: 'This Week', icon: Zap },
+  { id: 'streaks', label: 'Streaks', icon: Flame },
 ]
 
-const RANK_ICON = ['🥇', '🥈', '🥉']
+const MEDAL = ['🥇', '🥈', '🥉']
+
+function Avatar({ entry, size = 9 }) {
+  const initials = (entry.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  const colors = ['bg-burgundy-100 text-burgundy-700', 'bg-blue-100 text-blue-700', 'bg-emerald-100 text-emerald-700',
+    'bg-amber-100 text-amber-700', 'bg-purple-100 text-purple-700', 'bg-rose-100 text-rose-700']
+  const color = colors[(entry.id || 0) % colors.length]
+  return entry.avatar_url
+    ? <img src={entry.avatar_url} alt={entry.name}
+        className={`w-${size} h-${size} rounded-full object-cover shrink-0 border-2 border-white dark:border-dark-warm-100`} />
+    : <div className={`w-${size} h-${size} rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${color}`}>
+        {initials}
+      </div>
+}
 
 function RankBadge({ xp }) {
   const rank = getRank(xp)
@@ -33,107 +36,228 @@ function RankBadge({ xp }) {
   )
 }
 
+function XPBar({ value, max }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
+  return (
+    <div className="w-16 h-1.5 rounded-full bg-gray-100 dark:bg-dark-warm-50 overflow-hidden">
+      <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${pct}%` }} />
+    </div>
+  )
+}
+
 export default function Leaderboard() {
-  const [tab, setTab] = useState('global')
-  const [progress, setProgress] = useState(null)
+  const [tab, setTab] = useState('allTime')
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [localProgress] = useState(() => getProgress())
   const { user } = useUser()
 
-  useEffect(() => { setProgress(getProgress()) }, [])
+  useEffect(() => {
+    setLoading(true)
+    setError(false)
+    fetch('/api/leaderboard')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => { setData(d); setLoading(false) })
+      .catch(() => { setError(true); setLoading(false) })
+  }, [])
 
-  if (!progress) return null
-
-  const myXP = progress.xp
-  const myStreak = progress.streak
-  const myLevel = progress.level
-  const myName = user?.username || user?.name || 'You'
+  const myName = user?.name || 'You'
+  const myId = user?.id || null
+  const myXP = localProgress.xp
+  const myStreak = localProgress.streak
+  const myLevel = localProgress.level
   const myRank = getRank(myXP)
 
-  const allUsers = [...DEMO_USERS, { name: myName, xp: myXP, streak: myStreak, country: '🌍', badge: myRank.icon, level: myLevel, isMe: true }]
-    .sort((a, b) => b.xp - a.xp)
+  const today = new Date()
+  const dayOfWeek = today.getDay()
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+  const monday = new Date(today)
+  monday.setDate(today.getDate() + diffToMonday)
+  monday.setHours(0, 0, 0, 0)
+  const mondayStr = monday.toISOString().split('T')[0]
+  const myWeeklyXP = (localProgress.weeklyXP || [])
+    .filter(e => e.date >= mondayStr)
+    .reduce((s, e) => s + (e.xp || 0), 0)
 
-  const myPosition = allUsers.findIndex(u => u.isMe) + 1
+  const mergeMe = (list, valueKey) => {
+    const alreadyIn = list.some(e => e.id === myId)
+    const merged = alreadyIn
+      ? list.map(e => e.id === myId ? { ...e, isMe: true } : e)
+      : [...list, { id: myId, name: myName, avatar_url: user?.avatar_url || null, xp: myXP, weeklyXp: myWeeklyXP, streak: myStreak, level: myLevel, isMe: true }]
+    return merged.sort((a, b) => b[valueKey] - a[valueKey])
+  }
 
-  const weeklyUsers = [...DEMO_USERS.map(u => ({ ...u, xp: Math.floor(u.xp * (0.1 + Math.random() * 0.15)) })),
-    { name: myName, xp: Math.min(myXP, 500), streak: myStreak, country: '🌍', badge: myRank.icon, level: myLevel, isMe: true }]
-    .sort((a, b) => b.xp - a.xp)
+  const lists = data ? {
+    allTime: mergeMe(data.allTime, 'xp'),
+    weekly: mergeMe(data.weekly.length > 0 ? data.weekly : [], 'weeklyXp'),
+    streaks: mergeMe(data.streaks, 'streak'),
+  } : null
 
-  const displayUsers = tab === 'global' ? allUsers : weeklyUsers
+  const myPosition = (key, valueKey) => {
+    if (!lists) return null
+    const idx = lists[key].findIndex(e => e.isMe)
+    return idx >= 0 ? idx + 1 : null
+  }
+
+  const topVal = (key, valueKey) => {
+    if (!lists || lists[key].length === 0) return 1
+    return lists[key][0][valueKey]
+  }
+
+  const displayList = lists ? lists[tab] : []
+  const valueKey = tab === 'allTime' ? 'xp' : tab === 'weekly' ? 'weeklyXp' : 'streak'
+  const valueLabel = tab === 'streaks' ? 'days' : 'XP'
 
   return (
     <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300">
-      <SEO title="Leaderboard | SayBonjour!" description="See how you rank against French learners worldwide on SayBonjour!" />
+      <SEO title="Leaderboard | SayBonjour!" description="See how you rank against French learners worldwide on SayBonjour!" url="/leaderboard" />
       <div className="max-w-2xl mx-auto px-4 py-10">
+
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold font-playfair text-gray-900 dark:text-cream-50">Leaderboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Classement des apprenants</p>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 mb-4 shadow-lg">
+            <Trophy className="w-7 h-7 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-cream-50" style={{ fontFamily: 'Playfair Display, serif' }}>Leaderboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Classement des apprenants · Real learner rankings</p>
         </div>
 
-        <div className="bg-white dark:bg-dark-warm-100 rounded-2xl shadow border border-gray-100 dark:border-dark-warm-50 p-5 mb-6">
+        <div className="bg-white dark:bg-dark-warm-100 rounded-2xl shadow-sm border border-gray-100 dark:border-dark-warm-50 p-5 mb-6">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 font-semibold uppercase tracking-wide">Your Stats</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             <div className="text-center">
-              <p className="text-2xl font-bold text-burgundy-600">#{myPosition}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Global Rank</p>
+              <p className="text-xl font-bold text-burgundy-600">#{myPosition('allTime', 'xp') ?? '—'}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">All Time</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-amber-500">{myXP.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total XP</p>
+              <p className="text-xl font-bold text-blue-600">#{myPosition('weekly', 'weeklyXp') ?? '—'}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">This Week</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-orange-500">{myStreak}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Day Streak</p>
+              <p className="text-xl font-bold text-amber-500">{myXP.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Total XP</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-orange-500">{myStreak}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Streak</p>
             </div>
           </div>
-          <div className="mt-3 flex justify-center">
+          <div className="mt-3 flex items-center justify-between">
             <RankBadge xp={myXP} />
+            {myWeeklyXP > 0 && (
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                <Zap className="w-3 h-3" /> +{myWeeklyXP.toLocaleString()} XP this week
+              </span>
+            )}
           </div>
+          {!user && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
+              <Link to="/login" className="text-burgundy-600 dark:text-burgundy-400 font-medium hover:underline">Sign in</Link> to sync your stats and appear on the global board
+            </p>
+          )}
         </div>
 
-        <div className="flex gap-2 mb-6">
-          {[['global', 'All Time'], ['weekly', 'This Week']].map(([id, label]) => (
+        <div className="flex gap-2 mb-5">
+          {TABS.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setTab(id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${tab === id ? 'bg-burgundy-600 text-white' : 'bg-white dark:bg-dark-warm-100 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-dark-warm-50 hover:border-burgundy-300'}`}>
-              {label}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${tab === id ? 'bg-burgundy-600 text-white shadow-sm' : 'bg-white dark:bg-dark-warm-100 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-dark-warm-50 hover:border-burgundy-300 dark:hover:border-burgundy-600'}`}>
+              <Icon className="w-3.5 h-3.5" /> {label}
             </button>
           ))}
         </div>
 
-        <div className="space-y-2">
-          {displayUsers.map((user, i) => (
-            <motion.div key={`${user.name}-${i}`} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
-              className={`flex items-center gap-4 p-4 rounded-xl border ${user.isMe ? 'bg-burgundy-50 dark:bg-burgundy-900/20 border-burgundy-300 dark:border-burgundy-700' : 'bg-white dark:bg-dark-warm-100 border-gray-100 dark:border-dark-warm-50'}`}>
-              <div className="flex-shrink-0 w-8 text-center">
-                {i < 3 ? <span className="text-xl">{RANK_ICON[i]}</span> : <span className="text-gray-500 dark:text-gray-400 font-bold text-sm">#{i + 1}</span>}
-              </div>
-              <div className="text-xl">{user.country}</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className={`font-semibold truncate ${user.isMe ? 'text-burgundy-700 dark:text-burgundy-300' : 'text-gray-900 dark:text-cream-50'}`}>
-                    {user.name} {user.isMe && '(You)'}
-                  </span>
-                  <span className="text-sm">{user.badge}</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                  <span>Lv.{user.level}</span>
-                  <span className="flex items-center gap-1"><Flame size={11} className="text-orange-400" />{user.streak}d</span>
-                </div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="font-bold text-amber-500">{user.xp.toLocaleString()}</p>
-                <p className="text-xs text-gray-400">XP</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-8 bg-amber-50 dark:bg-dark-warm-100 border border-amber-200 dark:border-dark-warm-50 rounded-xl p-4">
-          <h3 className="font-semibold text-gray-800 dark:text-cream-50 mb-3 flex items-center gap-2"><Star className="text-amber-500" size={16} /> How to Earn More XP</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
-            {[['Daily Login', '+10 XP'], ['Word Learned', '+5 XP'], ['Lesson Read', '+15 XP'], ['Quiz Completed', '+25 XP'], ['3-Day Streak', '2× multiplier'], ['7-Day Streak', '3× multiplier']].map(([act, xp]) => (
-              <div key={act} className="flex justify-between"><span>{act}</span><span className="font-semibold text-burgundy-600">{xp}</span></div>
-            ))}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <RefreshCw className="w-6 h-6 text-gray-400 animate-spin" />
+            <p className="text-sm text-gray-400">Loading rankings…</p>
           </div>
-        </div>
+        )}
+
+        {error && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <WifiOff className="w-8 h-8 text-gray-300" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">Couldn't load leaderboard. Please try again.</p>
+            <button onClick={() => { setError(false); setLoading(true); fetch('/api/leaderboard').then(r => r.json()).then(d => { setData(d); setLoading(false) }).catch(() => { setError(true); setLoading(false) }) }}
+              className="px-4 py-2 text-sm font-medium bg-burgundy-600 text-white rounded-xl hover:bg-burgundy-700 transition-colors">
+              Retry
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <AnimatePresence mode="wait">
+            <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+              {displayList.length === 0 ? (
+                <div className="text-center py-16">
+                  <Users className="w-10 h-10 text-gray-200 dark:text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No rankings yet for this period.</p>
+                  <p className="text-xs text-gray-400 mt-1">Start learning to appear here!</p>
+                </div>
+              ) : (
+                displayList.map((entry, i) => {
+                  const val = entry[valueKey] || 0
+                  const maxVal = topVal(tab, valueKey)
+                  return (
+                    <motion.div key={`${entry.id ?? entry.name}-${i}`}
+                      initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.025 }}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all ${
+                        entry.isMe
+                          ? 'bg-burgundy-50 dark:bg-burgundy-900/20 border-burgundy-200 dark:border-burgundy-700 shadow-sm'
+                          : 'bg-white dark:bg-dark-warm-100 border-gray-100 dark:border-dark-warm-50 hover:border-gray-200 dark:hover:border-dark-warm-50'
+                      }`}>
+                      <div className="w-7 text-center shrink-0">
+                        {i < 3
+                          ? <span className="text-lg leading-none">{MEDAL[i]}</span>
+                          : <span className="text-xs font-bold text-gray-400 dark:text-gray-500">#{i + 1}</span>}
+                      </div>
+
+                      <Avatar entry={entry} size={9} />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-sm font-semibold truncate ${entry.isMe ? 'text-burgundy-700 dark:text-burgundy-300' : 'text-gray-900 dark:text-cream-50'}`}>
+                            {entry.name}{entry.isMe && <span className="ml-1 text-xs font-normal text-burgundy-500 dark:text-burgundy-400">(You)</span>}
+                          </span>
+                          {i === 0 && <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">Lv.{entry.level}</span>
+                          <XPBar value={val} max={maxVal} />
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <p className={`text-sm font-bold ${tab === 'streaks' ? 'text-orange-500' : 'text-amber-500'}`}>
+                          {val.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-400">{valueLabel}</p>
+                      </div>
+                    </motion.div>
+                  )
+                })
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {!loading && !error && (
+          <div className="mt-8 bg-amber-50 dark:bg-dark-warm-100 border border-amber-100 dark:border-dark-warm-50 rounded-2xl p-5">
+            <h3 className="font-semibold text-gray-800 dark:text-cream-50 mb-3 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-500" /> How to Earn More XP
+            </h3>
+            <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
+              {[['Daily Login', '+10 XP'], ['Word Learned', '+5 XP'], ['Lesson Read', '+15 XP'], ['Quiz Completed', '+25 XP'], ['3-Day Streak', '2× multiplier'], ['7-Day Streak', '3× multiplier']].map(([act, xp]) => (
+                <div key={act} className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">{act}</span>
+                  <span className="font-semibold text-burgundy-600 dark:text-burgundy-400">{xp}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 mt-4 text-center">
+              Rankings update in real time · Sync your progress to appear on the board
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
