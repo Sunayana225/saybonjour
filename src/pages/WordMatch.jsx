@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Shuffle, Star, Clock, RotateCcw, Zap, Trophy } from 'lucide-react'
+import { Shuffle, Star, Clock, RotateCcw, Zap, Trophy, ChevronLeft } from 'lucide-react'
 import { addXP } from '../utils/progress'
 import SEO from '../components/SEO'
 
@@ -142,6 +143,11 @@ const WordMatch = () => {
         url="/word-match"
       />
       <div className="min-h-screen bg-gray-50 dark:bg-dark-warm-300">
+        <div className="max-w-2xl mx-auto px-4 pt-5">
+          <Link to="/games" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-burgundy-600 dark:hover:text-burgundy-400 transition-colors group">
+            <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Games Hub
+          </Link>
+        </div>
         <div className="bg-gradient-to-r from-burgundy-800 to-burgundy-600 text-cream-50 py-10 px-4">
           <div className="max-w-2xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>

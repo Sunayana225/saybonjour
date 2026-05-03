@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, Accessibility, Shield, Database, Settings, Moon, Globe, Eye, Type, Zap, Trash2, Download, Key, Clock, Check, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Bell, Accessibility, Shield, Database, Settings, Moon, Globe, Eye, Type, Zap, Trash2, Download, Key, Clock, Check, AlertTriangle, RefreshCw, Mail } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAccessibility } from '../context/AccessibilityContext'
 import { useI18n } from '../context/i18nContext'
@@ -21,7 +21,7 @@ export default function AccountSettings() {
   const { isDark, toggleTheme } = useTheme()
   const { fontSize, setFontSize, dyslexiaFont, setDyslexiaFont, highContrast, setHighContrast, reduceMotion, setReduceMotion } = useAccessibility()
   const { lang, toggleLang, t } = useI18n()
-  const { user, updateProfile, changePassword, deleteAccount, exportData } = useUser()
+  const { user, updateProfile, changePassword, changeEmail, deleteAccount, exportData } = useUser()
 
   const [activeTab, setActiveTab] = useState('preferences')
   const [saving, setSaving] = useState(false)
@@ -50,6 +50,12 @@ export default function AccountSettings() {
   const [deleteModal, setDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [exporting, setExporting] = useState(false)
+
+  const [emailNew, setEmailNew] = useState('')
+  const [emailPassword, setEmailPassword] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [emailSuccess, setEmailSuccess] = useState('')
+  const [emailLoading, setEmailLoading] = useState(false)
 
   const [weeklyGoal, setWeeklyGoal] = useState(user?.weekly_goal_xp || 500)
 
@@ -89,6 +95,24 @@ export default function AccountSettings() {
         }, ms)
       }
     })
+  }
+
+  const handleEmailChange = async (e) => {
+    e.preventDefault()
+    setEmailError('')
+    setEmailSuccess('')
+    if (!emailNew.trim()) { setEmailError('Please enter a new email address.'); return }
+    setEmailLoading(true)
+    try {
+      const result = await changeEmail(emailNew.trim(), emailPassword)
+      setEmailSuccess(result.message || 'Email updated! Check your new inbox to verify.')
+      setEmailNew('')
+      setEmailPassword('')
+    } catch (err) {
+      setEmailError(err.response?.data?.message || 'Failed to update email.')
+    } finally {
+      setEmailLoading(false)
+    }
   }
 
   const handlePasswordChange = async (e) => {
@@ -324,11 +348,48 @@ export default function AccountSettings() {
 
           {activeTab === 'security' && (
             <motion.div key="sec" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-              className="bg-white dark:bg-dark-warm-100 rounded-2xl p-6 shadow-sm">
-              <h2 className="text-base font-semibold text-gray-800 dark:text-cream-50 mb-4 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-burgundy-600" /> {t('security')}
-              </h2>
-              <form onSubmit={handlePasswordChange} className="space-y-4">
+              className="bg-white dark:bg-dark-warm-100 rounded-2xl p-6 shadow-sm space-y-8">
+              <div>
+                <h2 className="text-base font-semibold text-gray-800 dark:text-cream-50 mb-1 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-burgundy-600" /> Change Email Address
+                </h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                  Current address: <span className="font-medium text-gray-700 dark:text-gray-300">{user?.email}</span>
+                  {user?.email_verified
+                    ? <span className="ml-2 inline-flex items-center gap-1 text-green-600 dark:text-green-400"><Check className="w-3 h-3" /> Verified</span>
+                    : <span className="ml-2 text-amber-600 dark:text-amber-400">· Unverified</span>}
+                </p>
+                <form onSubmit={handleEmailChange} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">New Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input type="email" value={emailNew} onChange={e => setEmailNew(e.target.value)} required
+                        className={inputCls + ' pl-10'} placeholder="you@example.com" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Confirm with Current Password</label>
+                    <div className="relative">
+                      <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input type="password" value={emailPassword} onChange={e => setEmailPassword(e.target.value)} required
+                        className={inputCls + ' pl-10'} placeholder="Your current password" />
+                    </div>
+                  </div>
+                  {emailError && <p className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{emailError}</p>}
+                  {emailSuccess && <p className="text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-2">{emailSuccess}</p>}
+                  <button type="submit" disabled={emailLoading}
+                    className="px-6 py-2.5 bg-burgundy-600 text-white rounded-xl font-medium hover:bg-burgundy-700 disabled:opacity-50 transition-colors text-sm">
+                    {emailLoading ? 'Updating…' : 'Update email'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="border-t border-gray-100 dark:border-dark-warm-50 pt-6">
+                <h2 className="text-base font-semibold text-gray-800 dark:text-cream-50 mb-4 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-burgundy-600" /> {t('security')}
+                </h2>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">{t('currentPassword')}</label>
                   <div className="relative">
@@ -368,6 +429,7 @@ export default function AccountSettings() {
                   <li>Your session lasts 30 days before requiring re-login</li>
                   <li>We never store your password in plain text</li>
                 </ul>
+              </div>
               </div>
             </motion.div>
           )}

@@ -12,6 +12,7 @@ import helmet from 'helmet'
 import { body, validationResult } from 'express-validator'
 import morgan from 'morgan'
 import multer from 'multer'
+import { Resend } from 'resend'
 import {
   generateSitemap,
   generateRobotsTxt,
@@ -996,6 +997,9 @@ const initUsersTable = () => {
   addCol('progress_data', 'TEXT DEFAULT NULL')
   addCol('reset_token', 'TEXT DEFAULT NULL')
   addCol('reset_token_expiry', 'INTEGER DEFAULT NULL')
+  addCol('email_verified', 'INTEGER DEFAULT 0')
+  addCol('verification_token', 'TEXT DEFAULT NULL')
+  addCol('verification_token_expiry', 'INTEGER DEFAULT NULL')
 
   db.prepare(`
     CREATE TABLE IF NOT EXISTS study_history (
@@ -1265,7 +1269,7 @@ const authenticateUser = (req, res, next) => {
 
 const userRegisterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10 })
 
-app.post('/api/users/register', userRegisterLimiter, (req, res) => {
+app.post('/api/users/register', userRegisterLimiter, async (req, res) => {
   const { name, email, password } = req.body
   if (!name || !email || !password) return res.status(400).json({ message: 'Name, email and password required' })
   if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' })
@@ -1275,10 +1279,60 @@ app.post('/api/users/register', userRegisterLimiter, (req, res) => {
     const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase())
     if (existing) { db.close(); return res.status(409).json({ message: 'An account with this email already exists' }) }
     const hash = hashUserPassword(password)
-    const result = db.prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)').run(name.trim(), email.toLowerCase(), hash)
-    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, created_at FROM users WHERE id = ?').get(result.lastInsertRowid)
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const verificationExpiry = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    const result = db.prepare(
+      'INSERT INTO users (name, email, password_hash, email_verified, verification_token, verification_token_expiry) VALUES (?, ?, ?, 0, ?, ?)'
+    ).run(name.trim(), email.toLowerCase(), hash, verificationToken, verificationExpiry)
+    const user = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, email_verified, created_at FROM users WHERE id = ?').get(result.lastInsertRowid)
     db.close()
     const token = jwt.sign({ userId: user.id }, USER_JWT_SECRET, { expiresIn: '30d' })
+
+    // Send verification email
+    if (process.env.RESEND_API_KEY) {
+      const appUrl = process.env.REPLIT_DEV_DOMAIN
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : `${req.protocol}://${req.get('host')}`
+      const verifyUrl = `${appUrl}/verify-email?token=${verificationToken}`
+      const firstName = name.trim().split(' ')[0]
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      await resend.emails.send({
+        from: 'SayBonjour! <onboarding@resend.dev>',
+        to: email.toLowerCase(),
+        subject: 'Confirm your SayBonjour! email address',
+        html: `
+          <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #1a1a1a;">
+            <div style="background: linear-gradient(135deg, #6b1d1d, #9b2c2c); padding: 32px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #fff; font-size: 26px; margin: 0; letter-spacing: 0.5px;">SayBonjour!</h1>
+              <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 2px;">French Learning Platform</p>
+            </div>
+            <div style="background: #ffffff; padding: 36px 40px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+              <p style="font-size: 17px; margin: 0 0 8px;">Bonjour ${firstName} !</p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6; margin: 0 0 8px;">
+                Welcome to SayBonjour! — your French learning journey starts now.
+              </p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6; margin: 0 0 24px;">
+                Please confirm your email address to activate your account. This link expires in <strong>24 hours</strong>.
+              </p>
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="${verifyUrl}" style="background: #7f1d1d; color: #fff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; display: inline-block;">
+                  Confirm My Email
+                </a>
+              </div>
+              <p style="font-size: 13px; color: #9ca3af; line-height: 1.6; margin: 24px 0 0;">
+                If you didn't create this account, you can safely ignore this email.<br><br>
+                Or copy this link into your browser:<br>
+                <a href="${verifyUrl}" style="color: #7f1d1d; word-break: break-all; font-size: 12px;">${verifyUrl}</a>
+              </p>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: #d1d5db; margin-top: 16px;">
+              © ${new Date().getFullYear()} SayBonjour! — Bonne chance avec votre français !
+            </p>
+          </div>
+        `
+      }).catch(e => console.error('Verification email error:', e))
+    }
+
     res.status(201).json({ token, user })
   } catch (e) {
     console.error('Register error:', e)
@@ -1385,26 +1439,149 @@ app.put('/api/users/change-password', authenticateUser, (req, res) => {
   }
 })
 
-app.post('/api/users/forgot-password', (req, res) => {
+app.get('/api/users/verify-email', (req, res) => {
+  const { token } = req.query
+  if (!token) return res.status(400).json({ message: 'Verification token is required' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const user = db.prepare('SELECT id, email_verified, verification_token_expiry FROM users WHERE verification_token = ?').get(token)
+    if (!user) { db.close(); return res.status(400).json({ message: 'Invalid verification link.' }) }
+    if (user.email_verified) { db.close(); return res.json({ message: 'Email already verified', alreadyVerified: true }) }
+    if (user.verification_token_expiry && Date.now() > user.verification_token_expiry) {
+      db.close(); return res.status(400).json({ message: 'Verification link has expired. Please request a new one.' })
+    }
+    db.prepare('UPDATE users SET email_verified = 1, verification_token = NULL, verification_token_expiry = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(user.id)
+    db.close()
+    res.json({ message: 'Email verified successfully' })
+  } catch (e) {
+    console.error('Verify email error:', e)
+    res.status(500).json({ message: 'Verification failed. Please try again.' })
+  }
+})
+
+app.post('/api/users/resend-verification', async (req, res) => {
   const { email } = req.body
   if (!email) return res.status(400).json({ message: 'Email is required' })
   try {
     const db = new Database(path.join(__dirname, 'french_learning.db'))
-    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase())
+    const user = db.prepare('SELECT id, name, email_verified FROM users WHERE email = ?').get(email.toLowerCase())
+    if (!user) { db.close(); return res.json({ message: 'If that email has an unverified account, a new link has been sent.' }) }
+    if (user.email_verified) { db.close(); return res.status(400).json({ message: 'This email is already verified.' }) }
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const verificationExpiry = Date.now() + 24 * 60 * 60 * 1000
+    db.prepare('UPDATE users SET verification_token = ?, verification_token_expiry = ? WHERE id = ?').run(verificationToken, verificationExpiry, user.id)
+    db.close()
+    if (process.env.RESEND_API_KEY) {
+      const appUrl = process.env.REPLIT_DEV_DOMAIN
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : `${req.protocol}://${req.get('host')}`
+      const verifyUrl = `${appUrl}/verify-email?token=${verificationToken}`
+      const firstName = user.name ? user.name.split(' ')[0] : 'there'
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      await resend.emails.send({
+        from: 'SayBonjour! <onboarding@resend.dev>',
+        to: email.toLowerCase(),
+        subject: 'Confirm your SayBonjour! email address',
+        html: `
+          <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #1a1a1a;">
+            <div style="background: linear-gradient(135deg, #6b1d1d, #9b2c2c); padding: 32px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #fff; font-size: 26px; margin: 0; letter-spacing: 0.5px;">SayBonjour!</h1>
+              <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 2px;">French Learning Platform</p>
+            </div>
+            <div style="background: #ffffff; padding: 36px 40px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+              <p style="font-size: 17px; margin: 0 0 8px;">Bonjour ${firstName} !</p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6; margin: 0 0 24px;">
+                Here's your new confirmation link. Click below to verify your email — it expires in <strong>24 hours</strong>.
+              </p>
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="${verifyUrl}" style="background: #7f1d1d; color: #fff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; display: inline-block;">
+                  Confirm My Email
+                </a>
+              </div>
+              <p style="font-size: 13px; color: #9ca3af; line-height: 1.6; margin: 24px 0 0;">
+                Or copy this link:<br>
+                <a href="${verifyUrl}" style="color: #7f1d1d; word-break: break-all; font-size: 12px;">${verifyUrl}</a>
+              </p>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: #d1d5db; margin-top: 16px;">
+              © ${new Date().getFullYear()} SayBonjour!
+            </p>
+          </div>
+        `
+      }).catch(e => console.error('Resend verification email error:', e))
+    }
+    res.json({ message: 'If that email has an unverified account, a new link has been sent.' })
+  } catch (e) {
+    console.error('Resend verification error:', e)
+    res.status(500).json({ message: 'Failed to resend verification email.' })
+  }
+})
+
+app.post('/api/users/forgot-password', async (req, res) => {
+  const { email } = req.body
+  if (!email) return res.status(400).json({ message: 'Email is required' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const user = db.prepare('SELECT id, name FROM users WHERE email = ?').get(email.toLowerCase())
     if (!user) {
       db.close()
-      // Don't reveal whether email exists — but since no email service, give the link anyway to be usable
-      return res.status(404).json({ message: 'No account found with that email address.' })
+      // Security: always respond with success to avoid leaking whether an email exists
+      return res.json({ message: 'If an account with that email exists, a reset link has been sent.' })
     }
     const token = crypto.randomBytes(32).toString('hex')
     const expiry = Date.now() + 60 * 60 * 1000 // 1 hour
     db.prepare('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?').run(token, expiry, user.id)
     db.close()
-    const resetUrl = `/reset-password?token=${token}`
-    res.json({ message: 'Reset link generated', resetUrl })
+
+    const appUrl = process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : `${req.protocol}://${req.get('host')}`
+    const resetUrl = `${appUrl}/reset-password?token=${token}`
+    const firstName = user.name ? user.name.split(' ')[0] : 'there'
+
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      await resend.emails.send({
+        from: 'SayBonjour! <onboarding@resend.dev>',
+        to: email.toLowerCase(),
+        subject: 'Reset your SayBonjour! password',
+        html: `
+          <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #1a1a1a;">
+            <div style="background: linear-gradient(135deg, #6b1d1d, #9b2c2c); padding: 32px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #fff; font-size: 26px; margin: 0; letter-spacing: 0.5px;">SayBonjour!</h1>
+              <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 2px;">French Learning Platform</p>
+            </div>
+            <div style="background: #ffffff; padding: 36px 40px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+              <p style="font-size: 17px; margin: 0 0 8px;">Bonjour ${firstName},</p>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.6; margin: 0 0 24px;">
+                We received a request to reset your password. Click the button below — this link is valid for <strong>1 hour</strong>.
+              </p>
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="${resetUrl}" style="background: #7f1d1d; color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; display: inline-block;">
+                  Reset My Password
+                </a>
+              </div>
+              <p style="font-size: 13px; color: #9ca3af; line-height: 1.6; margin: 24px 0 0;">
+                If you didn't request this, you can safely ignore this email — your password won't change.<br><br>
+                Or copy this link into your browser:<br>
+                <a href="${resetUrl}" style="color: #7f1d1d; word-break: break-all; font-size: 12px;">${resetUrl}</a>
+              </p>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: #d1d5db; margin-top: 16px;">
+              © ${new Date().getFullYear()} SayBonjour! — Bonne chance avec votre français !
+            </p>
+          </div>
+        `
+      })
+      console.log(`Password reset email sent to ${email}`)
+    } else {
+      console.warn('RESEND_API_KEY not set — reset link:', resetUrl)
+    }
+
+    res.json({ message: 'If an account with that email exists, a reset link has been sent.' })
   } catch (e) {
     console.error('Forgot password error:', e)
-    res.status(500).json({ message: 'Failed to generate reset link' })
+    res.status(500).json({ message: 'Failed to send reset email. Please try again.' })
   }
 })
 
@@ -1428,6 +1605,60 @@ app.post('/api/users/reset-password', (req, res) => {
   } catch (e) {
     console.error('Reset password error:', e)
     res.status(500).json({ message: 'Failed to reset password' })
+  }
+})
+
+app.put('/api/users/change-email', authenticateUser, async (req, res) => {
+  const { newEmail, currentPassword } = req.body
+  if (!newEmail || !currentPassword) return res.status(400).json({ message: 'New email and current password are required.' })
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(newEmail)) return res.status(400).json({ message: 'Invalid email address.' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const user = db.prepare('SELECT id, email, password_hash FROM users WHERE id = ?').get(req.userId)
+    if (!user) { db.close(); return res.status(404).json({ message: 'User not found.' }) }
+    let valid = false
+    try { valid = verifyUserPassword(currentPassword, user.password_hash) } catch {}
+    if (!valid) { db.close(); return res.status(401).json({ message: 'Current password is incorrect.' }) }
+    if (newEmail.toLowerCase() === user.email.toLowerCase()) { db.close(); return res.status(400).json({ message: 'New email must be different from your current email.' }) }
+    const existing = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?) AND id != ?').get(newEmail, req.userId)
+    if (existing) { db.close(); return res.status(409).json({ message: 'That email is already in use by another account.' }) }
+    const verifyToken = crypto.randomBytes(32).toString('hex')
+    const verifyExpiry = Date.now() + 24 * 60 * 60 * 1000
+    db.prepare('UPDATE users SET email = ?, email_verified = 0, verification_token = ?, verification_token_expiry = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(newEmail.toLowerCase(), verifyToken, verifyExpiry, req.userId)
+    const updatedUser = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, avatar_url, bio, email_verified FROM users WHERE id = ?').get(req.userId)
+    db.close()
+    const appUrl = process.env.APP_URL || `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app`
+    const verifyUrl = `${appUrl}/verify-email?token=${verifyToken}`
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: 'SayBonjour! <onboarding@resend.dev>',
+          to: newEmail,
+          subject: 'Confirm your new email — SayBonjour!',
+          html: `<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#222">
+            <div style="background:#7c2d3e;border-radius:12px;padding:20px 24px;margin-bottom:24px">
+              <h1 style="color:#fff;margin:0;font-size:22px;font-family:Georgia,serif">SayBonjour!</h1>
+              <p style="color:#f5c2cc;margin:4px 0 0;font-size:13px">French Learning Platform</p>
+            </div>
+            <h2 style="font-size:18px;margin-bottom:8px">Confirm your new email address</h2>
+            <p style="color:#555;font-size:14px;line-height:1.6">Hi ${updatedUser.name},<br><br>
+              You recently changed the email address on your SayBonjour! account. Please confirm your new address by clicking the button below.
+            </p>
+            <div style="text-align:center;margin:28px 0">
+              <a href="${verifyUrl}" style="display:inline-block;background:#7c2d3e;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Confirm new email</a>
+            </div>
+            <p style="color:#999;font-size:12px;text-align:center">This link expires in 24 hours. If you did not make this change, please contact us immediately.</p>
+          </body></html>`,
+        })
+      } catch (mailErr) {
+        console.error('Email change verification mail failed:', mailErr)
+      }
+    }
+    res.json({ message: 'Email updated. Please check your inbox to verify your new address.', user: updatedUser })
+  } catch (e) {
+    console.error('Change email error:', e)
+    res.status(500).json({ message: 'Failed to update email.' })
   }
 })
 
@@ -1538,6 +1769,58 @@ app.put('/api/users/progress-sync', authenticateUser, (req, res) => {
     res.json({ message: 'Progress synced' })
   } catch (e) {
     res.status(500).json({ message: 'Failed to sync progress' })
+  }
+})
+
+app.get('/api/leaderboard', (req, res) => {
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const rows = db.prepare('SELECT id, name, avatar_url, progress_data, created_at FROM users').all()
+    db.close()
+
+    const today = new Date()
+    const dayOfWeek = today.getDay()
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    const monday = new Date(today)
+    monday.setDate(today.getDate() + diffToMonday)
+    monday.setHours(0, 0, 0, 0)
+    const mondayStr = monday.toISOString().split('T')[0]
+
+    const entries = rows.map(row => {
+      let xp = 0, streak = 0, level = 1, weeklyXp = 0
+      if (row.progress_data) {
+        try {
+          const p = JSON.parse(row.progress_data)
+          xp = p.xp || 0
+          streak = p.streak || 0
+          level = p.level || Math.floor(xp / 500) + 1
+          if (Array.isArray(p.weeklyXP)) {
+            weeklyXp = p.weeklyXP
+              .filter(e => e.date >= mondayStr)
+              .reduce((sum, e) => sum + (e.xp || 0), 0)
+          }
+        } catch {}
+      }
+      return {
+        id: row.id,
+        name: row.name,
+        avatar_url: row.avatar_url || null,
+        xp,
+        weeklyXp,
+        streak,
+        level,
+        joinedAt: row.created_at,
+      }
+    }).filter(e => e.xp > 0 || e.weeklyXp > 0)
+
+    const allTime = [...entries].sort((a, b) => b.xp - a.xp).slice(0, 50)
+    const weekly  = [...entries].filter(e => e.weeklyXp > 0).sort((a, b) => b.weeklyXp - a.weeklyXp).slice(0, 50)
+    const streaks = [...entries].filter(e => e.streak > 0).sort((a, b) => b.streak - a.streak).slice(0, 50)
+
+    res.json({ allTime, weekly, streaks })
+  } catch (e) {
+    console.error('Leaderboard error:', e)
+    res.status(500).json({ message: 'Failed to fetch leaderboard' })
   }
 })
 

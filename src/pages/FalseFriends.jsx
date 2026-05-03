@@ -161,7 +161,7 @@ export default function FalseFriends() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-cream-50 mb-2">Quiz Complete!</h2>
                 <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">{score}/{questions.length} correct</p>
                 <p className="text-sm text-green-600 mb-6">+{score * 5} XP earned</p>
-                <button onClick={restart} className="btn-primary flex items-center gap-2 mx-auto"><RotateCcw size="md" /> Try Again</button>
+                <button onClick={restart} className="btn-primary flex items-center gap-2 mx-auto"><RotateCcw className="w-4 h-4" /> Try Again</button>
               </div>
             ) : (
               <div className="bg-white dark:bg-dark-warm-100 rounded-2xl p-6 shadow border border-gray-100 dark:border-dark-warm-50">
@@ -190,7 +190,7 @@ export default function FalseFriends() {
                 {selected !== null && (
                   <div className="mt-4 space-y-2">
                     <div className={`flex items-center gap-2 font-medium text-sm ${selected === q.real ? 'text-green-600' : 'text-red-500'}`}>
-                      {selected === q.real ? <><CheckCircle size="md" /> Correct!</> : <><XCircle size="md" /> Correct answer: {q.real}</>}
+                      {selected === q.real ? <><CheckCircle className="w-4 h-4" /> Correct!</> : <><XCircle className="w-4 h-4" /> Correct answer: {q.real}</>}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 italic bg-gray-50 dark:bg-dark-warm-200 rounded-lg p-2">{q.example}</div>
                     <div className="flex justify-end"><button onClick={nextQ} className="btn-primary text-sm">Next →</button></div>

@@ -1,10 +1,30 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { BookOpen, Brain, Bookmark, MapPin, ArrowRight, Award, Play, TrendingUp, Globe, Zap, Heart, Users, Film, Lightbulb, Map, FileText, PenTool, MessageCircle, Ear, Building, Theater, Wine, Music, Tv, Flame } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { BookOpen, Brain, Bookmark, MapPin, ArrowRight, Award, Play, TrendingUp, Globe, Zap, Heart, Users, Film, Lightbulb, Map, FileText, PenTool, MessageCircle, Ear, Building, Theater, Wine, Music, Tv, Flame, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import SEO from '../components/SEO'
 import SpeakButton from '../components/SpeakButton'
 import { updateAndGetStreak, getWeekDots, getStreakMotivation, getStreakEmoji } from '../utils/streak'
+import { getProgress } from '../utils/progress'
+
+const WOTD_LIST = [
+  { fr: 'épanouissement', en: 'fulfilment / blossoming', pos: 'noun', level: 'B2' },
+  { fr: 'flâner', en: 'to stroll aimlessly', pos: 'verb', level: 'B1' },
+  { fr: 'dépaysement', en: 'change of scenery', pos: 'noun', level: 'B2' },
+  { fr: 'nonchalant', en: 'laid-back / casual', pos: 'adjective', level: 'B2' },
+  { fr: 'chuchoter', en: 'to whisper', pos: 'verb', level: 'A2' },
+  { fr: 'brume', en: 'mist / haze', pos: 'noun', level: 'B1' },
+  { fr: 'insouciant', en: 'carefree / nonchalant', pos: 'adjective', level: 'B1' },
+  { fr: 'mélancolie', en: 'melancholy', pos: 'noun', level: 'B2' },
+  { fr: 'espiègle', en: 'mischievous / playful', pos: 'adjective', level: 'B2' },
+  { fr: 'savoir-faire', en: 'know-how / expertise', pos: 'noun', level: 'B1' },
+  { fr: 'crépuscule', en: 'twilight / dusk', pos: 'noun', level: 'B1' },
+  { fr: 'bienveillant', en: 'benevolent / kind', pos: 'adjective', level: 'B1' },
+  { fr: 'lumineux', en: 'luminous / radiant', pos: 'adjective', level: 'A2' },
+  { fr: 'sérénité', en: 'serenity / peacefulness', pos: 'noun', level: 'B1' },
+  { fr: 'tendresse', en: 'tenderness / fondness', pos: 'noun', level: 'A2' },
+]
+const LEVEL_PILL = { A1: 'bg-emerald-100 text-emerald-700', A2: 'bg-blue-100 text-blue-700', B1: 'bg-yellow-100 text-yellow-700', B2: 'bg-orange-100 text-orange-700', C1: 'bg-purple-100 text-purple-700' }
 
 const TypewriterText = ({ text, delay = 0 }) => {
   const [displayText, setDisplayText] = useState('')
@@ -37,10 +57,19 @@ const TypewriterText = ({ text, delay = 0 }) => {
 
 const Home = () => {
   const [streak, setStreak] = useState({ currentStreak: 0, longestStreak: 0 })
+  const [reminderDismissed, setReminderDismissed] = useState(false)
 
   useEffect(() => {
     setStreak(updateAndGetStreak())
   }, [])
+
+  const today = new Date()
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000)
+  const todayWord = WOTD_LIST[dayOfYear % WOTD_LIST.length]
+  const progress = getProgress()
+  const studiedToday = progress.lastStudyDate === today.toISOString().split('T')[0]
+  const isAfterNoon = today.getHours() >= 12
+  const showReminder = !studiedToday && isAfterNoon && !reminderDismissed
 
   const particles = useMemo(() => Array.from({ length: 15 }, () => ({
     left: Math.random() * 100,
@@ -505,6 +534,62 @@ const Home = () => {
           transition={{ duration: 3.5, repeat: Infinity, delay: 1.5 }}
         />
       </section>
+
+      {/* WOTD + Study Reminder strip */}
+      <div className="bg-white dark:bg-dark-warm-100 border-b border-gray-100 dark:border-dark-warm-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+
+          {/* Word of the Day */}
+          <Link to="/word-of-the-day" className="flex items-center gap-3 flex-1 group min-w-0">
+            <div className="w-9 h-9 bg-burgundy-50 dark:bg-burgundy-900/30 rounded-xl flex items-center justify-center shrink-0">
+              <span className="text-lg">📖</span>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-burgundy-600 dark:text-burgundy-400 uppercase tracking-wide">Mot du Jour</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${LEVEL_PILL[todayWord.level] || 'bg-gray-100 text-gray-600'}`}>{todayWord.level}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-gray-900 dark:text-cream-50 text-sm group-hover:text-burgundy-600 transition-colors truncate">{todayWord.fr}</span>
+                <span className="text-gray-400 text-xs">—</span>
+                <span className="text-gray-500 dark:text-gray-400 text-xs truncate">{todayWord.en}</span>
+              </div>
+            </div>
+          </Link>
+
+          <div className="hidden sm:block w-px h-8 bg-gray-200 dark:bg-dark-warm-50 shrink-0" />
+
+          {/* Study reminder (afternoon only, dismissible) */}
+          <AnimatePresence>
+            {showReminder && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex items-center gap-3 shrink-0"
+              >
+                <Flame className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                  Haven't studied yet today — <Link to="/daily-challenges" className="text-burgundy-600 dark:text-burgundy-400 font-bold hover:underline">keep your streak alive!</Link>
+                </span>
+                <button onClick={() => setReminderDismissed(true)} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
+                  <X size={14} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* "All good" state after studying */}
+          {studiedToday && (
+            <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium shrink-0">
+              <span>✓</span>
+              <span>Studied today</span>
+              {progress.streak > 0 && <span className="font-bold">🔥 {progress.streak}-day streak</span>}
+            </div>
+          )}
+
+        </div>
+      </div>
 
       {/* Features Section */}
       <section className="py-12 sm:py-16 md:py-20 section-gradient transition-colors duration-300">

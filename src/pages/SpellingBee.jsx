@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Volume2, CheckCircle, XCircle, RotateCcw, Play } from 'lucide-react'
+import { Volume2, CheckCircle, XCircle, RotateCcw, Play, ChevronLeft } from 'lucide-react'
 import SEO from '../components/SEO'
 import { addXP } from '../utils/progress'
 
@@ -98,6 +99,9 @@ export default function SpellingBee() {
     <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300">
       <SEO title="French Spelling Bee | SayBonjour!" description="Listen to French words and practise spelling them correctly." />
       <div className="max-w-xl mx-auto px-4 py-8">
+        <Link to="/games" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-burgundy-600 dark:hover:text-burgundy-400 mb-5 transition-colors group">
+          <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Games Hub
+        </Link>
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold font-playfair text-gray-900 dark:text-cream-50">Spelling Bee</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Listen and spell French words correctly</p>

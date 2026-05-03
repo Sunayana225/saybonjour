@@ -1,3 +1,6 @@
+import { getHappyHourMultiplierBonus } from './happyHour'
+import { addFreeze } from './streakFreeze'
+
 const PROGRESS_KEY = 'saybonjour_progress'
 
 const defaultProgress = {
@@ -71,8 +74,10 @@ export const getXPMultiplier = (streak) => {
 export const addXP = (amount, reason = '') => {
   const progress = getProgress()
 
-  const multiplier = getXPMultiplier(progress.streak)
+  const streakMult = getXPMultiplier(progress.streak)
   const skipMultiplier = ['daily_login'].includes(reason)
+  const happyBonus = skipMultiplier ? 0 : getHappyHourMultiplierBonus()
+  const multiplier = skipMultiplier ? 1 : Math.min(4, streakMult + happyBonus)
   const finalAmount = skipMultiplier ? amount : amount * multiplier
 
   progress.xp += finalAmount
@@ -100,8 +105,12 @@ export const addXP = (amount, reason = '') => {
 
   progress.level = Math.floor(progress.xp / 500) + 1
   updateStreak(progress)
-  checkBadges(progress)
+  const newBadges = checkBadges(progress)
   saveProgress(progress)
+  window.dispatchEvent(new CustomEvent('xpGained', { detail: { amount: finalAmount } }))
+  newBadges.forEach(badge => {
+    window.dispatchEvent(new CustomEvent('badgeEarned', { detail: { badge } }))
+  })
   return { progress, multiplier: skipMultiplier ? 1 : multiplier, earned: finalAmount }
 }
 
@@ -116,6 +125,11 @@ const updateStreak = (progress) => {
     progress.streak = 1
   }
   progress.lastStudyDate = today
+  progress.longestStreak = Math.max(progress.longestStreak || 0, progress.streak)
+
+  if (progress.streak > 0 && progress.streak % 7 === 0) {
+    addFreeze()
+  }
 }
 
 const BADGES = [
@@ -134,6 +148,7 @@ const BADGES = [
 ]
 
 const checkBadges = (progress) => {
+  const newBadges = []
   BADGES.forEach(badge => {
     if (progress.badges.includes(badge.id)) return
     let earned = false
@@ -141,8 +156,9 @@ const checkBadges = (progress) => {
     if (badge.streakRequired && progress.streak >= badge.streakRequired) earned = true
     if (badge.quizzesRequired && progress.totalQuizzesTaken >= badge.quizzesRequired) earned = true
     if (badge.xpRequired && badge.xpRequired > 0 && progress.xp >= badge.xpRequired) earned = true
-    if (earned) progress.badges.push(badge.id)
+    if (earned) { progress.badges.push(badge.id); newBadges.push(badge) }
   })
+  return newBadges
 }
 
 export const recordQuiz = () => {

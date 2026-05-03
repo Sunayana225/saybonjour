@@ -9,15 +9,15 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [resetLink, setResetLink] = useState('')
+  const [sent, setSent] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const res = await axios.post('/api/users/forgot-password', { email })
-      setResetLink(res.data.resetUrl)
+      await axios.post('/api/users/forgot-password', { email })
+      setSent(true)
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.')
     } finally {
@@ -30,7 +30,6 @@ export default function ForgotPassword() {
       <SEO title="Forgot Password | SayBonjour!" url="/forgot-password" noindex />
       <div className="min-h-[calc(100vh-60px)] flex bg-cream-50 dark:bg-dark-warm-300">
 
-        {/* Left panel */}
         <div className="hidden lg:block relative overflow-hidden" style={{ width: '58%' }}>
           <div className="absolute inset-0 bg-gradient-to-br from-burgundy-900 via-burgundy-700 to-burgundy-500" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/30" />
@@ -46,7 +45,6 @@ export default function ForgotPassword() {
           </div>
         </div>
 
-        {/* Right panel */}
         <div className="flex-1 flex items-center justify-center bg-white dark:bg-dark-warm-100 px-8 py-16">
           <motion.div
             className="w-full max-w-sm"
@@ -60,7 +58,7 @@ export default function ForgotPassword() {
             </Link>
 
             <AnimatePresence mode="wait">
-              {!resetLink ? (
+              {!sent ? (
                 <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="mb-7">
                     <div className="w-12 h-12 rounded-2xl bg-burgundy-100 dark:bg-burgundy-900/40 flex items-center justify-center mb-4">
@@ -105,36 +103,33 @@ export default function ForgotPassword() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      {loading ? 'Sending...' : 'Send Reset Link'}
+                      {loading ? 'Sending…' : 'Send Reset Link'}
                     </motion.button>
                   </form>
                 </motion.div>
               ) : (
                 <motion.div key="success" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                  <div className="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-5">
-                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-5">
+                    <CheckCircle className="w-7 h-7 text-green-600 dark:text-green-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-cream-50 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-                    Reset link ready
+                    Check your inbox
                   </h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-                    In a production app this would be emailed to you. Since no email service is configured, use the link below directly:
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mb-2 leading-relaxed">
+                    We've sent a password reset link to <span className="font-semibold text-gray-700 dark:text-gray-300">{email}</span>.
                   </p>
-                  <div className="bg-gray-50 dark:bg-dark-warm-200 border border-gray-200 dark:border-dark-warm-50 rounded-xl p-4 mb-5">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium uppercase tracking-wide">Your reset link</p>
-                    <a
-                      href={resetLink}
-                      className="text-burgundy-600 dark:text-burgundy-400 text-sm font-medium break-all hover:underline"
-                    >
-                      {resetLink}
-                    </a>
-                  </div>
-                  <a
-                    href={resetLink}
-                    className="block w-full text-center py-3 bg-burgundy-600 text-cream-50 rounded-xl font-semibold hover:bg-burgundy-700 transition-colors"
+                  <p className="text-gray-400 dark:text-gray-500 text-xs mb-6 leading-relaxed">
+                    The link expires in 1 hour. If you don't see it, check your spam folder.
+                  </p>
+                  <button
+                    onClick={() => { setSent(false); setEmail('') }}
+                    className="w-full py-3 border border-gray-200 dark:border-dark-warm-50 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-warm-200 transition-colors"
                   >
-                    Go to Reset Password
-                  </a>
+                    Try a different email
+                  </button>
+                  <p className="text-center text-sm text-gray-400 mt-4">
+                    <Link to="/login" className="text-burgundy-600 dark:text-burgundy-400 hover:underline">Back to sign in</Link>
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>

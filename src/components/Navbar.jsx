@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { getFavoritesCounts } from '../utils/favorites'
 import { getProgress } from '../utils/progress'
+import { getHappyHourStatus, formatMins } from '../utils/happyHour'
 import { useTheme } from '../context/ThemeContext'
 import { useUser } from '../context/UserContext'
 import { useI18n } from '../context/i18nContext'
@@ -78,6 +79,7 @@ const SEARCH_INDEX = [
   { label: 'Verb Constructions', desc: 'Phrasal patterns — avoir, faire, se + verb', href: '/phrasal-verbs', category: 'Language Tools' },
   { label: 'French Art', desc: 'Masterpieces and art vocabulary', href: '/french-art', category: 'Culture & Media' },
   { label: 'Conjugation Quiz', desc: 'Test all tenses with instant feedback', href: '/conjugation-quiz', category: 'Practice' },
+  { label: 'Games Hub', desc: 'All French learning games in one place', href: '/games', category: 'Games' },
 ]
 
 const LEARN_COLUMNS = [
@@ -116,6 +118,7 @@ const LEARN_COLUMNS = [
       {
         heading: 'Mini Games',
         items: [
+          { name: 'Games Hub', href: '/games', icon: Gamepad2, desc: 'Browse all 14 games' },
           { name: 'Word Match', href: '/word-match', icon: Gamepad2, desc: 'Match French & English' },
           { name: 'Typing Race', href: '/typing-race', icon: Zap, desc: 'Type translations fast!' },
           { name: 'Hangman', href: '/hangman', icon: Gamepad2, desc: 'Guess the French word' },
@@ -191,6 +194,15 @@ const LEARN_ALL_HREFS = LEARN_COLUMNS.flatMap(col =>
 )
 const RESOURCES_ALL_HREFS = RESOURCES_COLUMNS.flatMap(col => col.items.map(i => i.href))
 
+const checkDailyChallengesDone = () => {
+  try {
+    const store = JSON.parse(localStorage.getItem('saybonjour_daily')) || {}
+    const todayKey = new Date().toISOString().split('T')[0]
+    const t = store[todayKey] || {}
+    return !!(t.vocab && t.quiz && t.translation)
+  } catch { return false }
+}
+
 function highlightMatch(text, query) {
   if (!query) return text
   const idx = text.toLowerCase().indexOf(query.toLowerCase())
@@ -214,9 +226,12 @@ const Navbar = () => {
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [xp, setXp] = useState(0)
   const [streak, setStreak] = useState(0)
+  const [level, setLevel] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
+  const [dailyChallengesDone, setDailyChallengesDone] = useState(checkDailyChallengesDone)
+  const [happyHour, setHappyHour] = useState(() => getHappyHourStatus())
 
   const learnTimer = useRef(null)
   const resourcesTimer = useRef(null)
@@ -249,10 +264,24 @@ const Navbar = () => {
   }, [])
 
   useEffect(() => {
-    const update = () => { const p = getProgress(); setXp(p.xp); setStreak(p.streak) }
+    const update = () => { const p = getProgress(); setXp(p.xp); setStreak(p.streak); setLevel(p.level) }
     update()
     window.addEventListener('progressUpdated', update)
     return () => window.removeEventListener('progressUpdated', update)
+  }, [])
+
+  useEffect(() => {
+    const update = () => setDailyChallengesDone(checkDailyChallengesDone())
+    update()
+    window.addEventListener('progressUpdated', update)
+    window.addEventListener('storage', update)
+    return () => { window.removeEventListener('progressUpdated', update); window.removeEventListener('storage', update) }
+  }, [])
+
+  useEffect(() => {
+    const tick = () => setHappyHour(getHappyHourStatus())
+    const id = setInterval(tick, 30000)
+    return () => clearInterval(id)
   }, [])
 
   useEffect(() => {
@@ -316,35 +345,50 @@ const Navbar = () => {
   const navItemCls = (active) =>
     `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
       active
-        ? isScrolled ? 'text-burgundy-400' : 'text-burgundy-700'
+        ? isScrolled ? 'text-burgundy-400' : 'text-burgundy-300'
         : isScrolled
           ? 'text-gray-300 hover:text-white hover:bg-white/5'
-          : 'text-gray-700 hover:text-gray-900 hover:bg-black/5'
+          : 'text-gray-200 hover:text-white hover:bg-white/10'
     }`
 
-  const MegaMenuColumn = ({ col, isLast }) => {
+  const MegaMenuColumn = ({ col, isLast, dailyChallengesDone }) => {
+    const renderItem = (item) => {
+      const Icon = item.icon
+      const isDaily = item.href === '/daily-challenges'
+      return (
+        <Link key={item.href} to={item.href}
+          className={`flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all group ${isActive(item.href) ? 'bg-burgundy-900/30' : 'hover:bg-gray-700/50'}`}>
+          <div className="w-7 h-7 flex-shrink-0 rounded-md bg-gray-800 border border-gray-700/60 flex items-center justify-center group-hover:border-burgundy-700/60 group-hover:bg-burgundy-900/20 transition-colors">
+            <Icon size={13} className="text-burgundy-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-[13px] font-semibold text-gray-100 whitespace-nowrap leading-none">{item.name}</p>
+              {isDaily && !dailyChallengesDone && (
+                <span className="flex-shrink-0 text-[9px] font-bold bg-amber-400 text-gray-900 rounded-full px-1.5 py-0.5 leading-none uppercase tracking-wide">
+                  Today
+                </span>
+              )}
+              {isDaily && dailyChallengesDone && (
+                <span className="flex-shrink-0 text-[9px] font-bold bg-emerald-500 text-white rounded-full px-1.5 py-0.5 leading-none">
+                  ✓ Done
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-gray-500 leading-none mt-1 truncate">{item.desc}</p>
+          </div>
+        </Link>
+      )
+    }
+
     if (col.subSections) {
       return (
-        <div className={`${isLast ? '' : 'border-r border-gray-700 pr-6'}`}>
+        <div className={`${isLast ? '' : 'border-r border-gray-700/60 pr-7'}`}>
           {col.subSections.map((sub) => (
             <div key={sub.heading} className="mb-5 last:mb-0">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-burgundy-400 mb-2 px-1">{sub.heading}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-burgundy-400 mb-2.5 px-2.5">{sub.heading}</p>
               <div className="space-y-0.5">
-                {sub.items.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <Link key={item.href} to={item.href}
-                      className={`flex items-start gap-3 px-2 py-2 rounded-lg transition-all group ${isActive(item.href) ? 'bg-burgundy-900/20' : 'hover:bg-gray-700/40'}`}>
-                      <div className="w-7 h-7 flex-shrink-0 rounded-lg bg-gray-700 flex items-center justify-center group-hover:bg-burgundy-900/30 transition-colors">
-                        <Icon size={13} className="text-burgundy-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-100 leading-tight">{item.name}</p>
-                        <p className="text-xs text-gray-400 leading-tight mt-0.5">{item.desc}</p>
-                      </div>
-                    </Link>
-                  )
-                })}
+                {sub.items.map(renderItem)}
               </div>
             </div>
           ))}
@@ -352,24 +396,10 @@ const Navbar = () => {
       )
     }
     return (
-      <div className={`${isLast ? '' : 'border-r border-gray-700 pr-6'}`}>
-        <p className="text-[11px] font-bold uppercase tracking-widest text-burgundy-400 mb-3 px-1">{col.heading}</p>
+      <div className={`${isLast ? '' : 'border-r border-gray-700/60 pr-7'}`}>
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-burgundy-400 mb-2.5 px-2.5">{col.heading}</p>
         <div className="space-y-0.5">
-          {col.items.map((item) => {
-            const Icon = item.icon
-            return (
-              <Link key={item.href} to={item.href}
-                className={`flex items-start gap-3 px-2 py-2 rounded-lg transition-all group ${isActive(item.href) ? 'bg-burgundy-900/20' : 'hover:bg-gray-700/40'}`}>
-                <div className="w-7 h-7 flex-shrink-0 rounded-lg bg-gray-700 flex items-center justify-center group-hover:bg-burgundy-900/30 transition-colors">
-                  <Icon size={13} className="text-burgundy-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-100 leading-tight">{item.name}</p>
-                  <p className="text-xs text-gray-400 leading-tight mt-0.5">{item.desc}</p>
-                </div>
-              </Link>
-            )
-          })}
+          {col.items.map(renderItem)}
         </div>
       </div>
     )
@@ -408,10 +438,16 @@ const Navbar = () => {
 
               {/* Learn mega-menu trigger */}
               <div className="relative" onMouseEnter={openLearn} onMouseLeave={closeLearn}>
-                <button className={navItemCls(isLearnActive())}>
+                <button className={`relative ${navItemCls(isLearnActive())}`}>
                   <GraduationCap size={15} />
                   Learn
                   <ChevronDown size={13} className={`transition-transform duration-200 ${isLearnOpen ? 'rotate-180' : ''}`} />
+                  {!dailyChallengesDone && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+                    </span>
+                  )}
                 </button>
 
                 <AnimatePresence>
@@ -423,12 +459,12 @@ const Navbar = () => {
                       transition={{ duration: 0.15 }}
                       onMouseEnter={() => clearTimeout(learnTimer.current)}
                       onMouseLeave={closeLearn}
-                      className="absolute top-full left-0 mt-2 z-50 bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 p-5"
-                      style={{ width: '680px' }}
+                      className="absolute top-full left-0 mt-2 z-50 bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 p-6"
+                      style={{ width: '900px' }}
                     >
                       <div className="grid grid-cols-3 gap-6">
                         {LEARN_COLUMNS.map((col, i) => (
-                          <MegaMenuColumn key={i} col={col} isLast={i === LEARN_COLUMNS.length - 1} />
+                          <MegaMenuColumn key={i} col={col} isLast={i === LEARN_COLUMNS.length - 1} dailyChallengesDone={dailyChallengesDone} />
                         ))}
                       </div>
                     </motion.div>
@@ -453,8 +489,8 @@ const Navbar = () => {
                       transition={{ duration: 0.15 }}
                       onMouseEnter={() => clearTimeout(resourcesTimer.current)}
                       onMouseLeave={closeResources}
-                      className="absolute top-full left-0 mt-2 z-50 bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 p-5"
-                      style={{ width: '600px' }}
+                      className="absolute top-full left-0 mt-2 z-50 bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 p-6"
+                      style={{ width: '860px' }}
                     >
                       <div className="grid grid-cols-3 gap-6">
                         {RESOURCES_COLUMNS.map((col, i) => (
@@ -485,6 +521,27 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
+
+              {/* Happy Hour pill */}
+              <AnimatePresence>
+                {happyHour.active && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.85, x: -8 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.85, x: -8 }}
+                    transition={{ duration: 0.2 }}
+                    title={`${happyHour.label} — ${Math.min(4, 1 + happyHour.multiplierBonus)}× XP on all activities!`}
+                  >
+                    <Link to="/daily-challenges"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-400 text-gray-900 shadow-md hover:from-amber-300 hover:to-orange-300 transition-all"
+                    >
+                      <Zap size={12} className="flex-shrink-0" />
+                      <span>Happy Hour · {(1 + happyHour.multiplierBonus)}× XP</span>
+                      <span className="opacity-70">· {formatMins(happyHour.endsInMins)}</span>
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Right side: search + theme + auth */}
@@ -629,10 +686,22 @@ const Navbar = () => {
                         transition={{ duration: 0.13 }}
                         className="absolute right-0 top-full mt-2 w-52 bg-gray-900 rounded-xl shadow-xl border border-gray-700 z-50 py-2"
                       >
-                        <div className="px-4 py-2 border-b border-gray-700 mb-1">
+                        <div className="px-4 py-2.5 border-b border-gray-700 mb-1">
                           <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                           <p className="text-xs text-gray-400 truncate">{user.email}</p>
-                          <p className="text-xs text-amber-500 font-medium mt-0.5">{xp} XP total</p>
+                          <div className="mt-2">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-[10px] font-semibold text-amber-400">Lv.{level}</span>
+                              <span className="text-[10px] text-gray-500">{xp} / {level * 500} XP</span>
+                            </div>
+                            <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-500"
+                                style={{ width: `${Math.min(100, ((xp - (level - 1) * 500) / 500) * 100)}%` }}
+                              />
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{Math.max(0, level * 500 - xp)} XP to Lv.{level + 1}</p>
+                          </div>
                         </div>
                         <Link to="/profile" onClick={() => setIsUserOpen(false)}
                           className="flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors">
@@ -719,6 +788,16 @@ const Navbar = () => {
                       </button>
                     ))}
                   </div>
+                )}
+
+                {/* Happy Hour banner (mobile) */}
+                {happyHour.active && (
+                  <Link to="/daily-challenges" onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-gray-900 font-bold text-sm mb-2">
+                    <Zap size={15} className="flex-shrink-0" />
+                    <span className="flex-1">Happy Hour — {1 + happyHour.multiplierBonus}× XP active!</span>
+                    <span className="text-xs font-semibold opacity-75">{formatMins(happyHour.endsInMins)} left</span>
+                  </Link>
                 )}
 
                 {/* User info / auth */}

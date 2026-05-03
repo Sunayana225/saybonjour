@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RotateCcw, CheckCircle, XCircle, Trophy, Shuffle } from 'lucide-react'
+import { RotateCcw, CheckCircle, XCircle, Trophy, Shuffle, ChevronLeft } from 'lucide-react'
 import SEO from '../components/SEO'
 import SpeakButton from '../components/SpeakButton'
 import { addXP } from '../utils/progress'
@@ -98,6 +99,9 @@ export default function WordScramble() {
     <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300">
       <SEO title="French Word Scramble | SayBonjour!" description="Unscramble French words and improve your vocabulary." />
       <div className="max-w-xl mx-auto px-4 py-8">
+        <Link to="/games" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-burgundy-600 dark:hover:text-burgundy-400 mb-5 transition-colors group">
+          <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Games Hub
+        </Link>
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold font-playfair text-gray-900 dark:text-cream-50">Word Scramble</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Remettez les lettres dans le bon ordre !</p>
@@ -169,11 +173,11 @@ export default function WordScramble() {
               {!result && (
                 <>
                   <button onClick={() => { setAnswer([]); setTiles(t => t.map(tl => ({ ...tl, used: false }))) }} className="btn-secondary text-sm">Clear</button>
-                  <button onClick={reshuffleTiles} className="btn-secondary text-sm flex items-center gap-1"><Shuffle size="sm" /> Shuffle</button>
+                  <button onClick={reshuffleTiles} className="btn-secondary text-sm flex items-center gap-1"><Shuffle className="w-4 h-4" /> Shuffle</button>
                   <button onClick={checkAnswer} disabled={answer.length !== current.word.length} className="btn-primary text-sm disabled:opacity-50">Check</button>
                 </>
               )}
-              {result && <button onClick={next} className="btn-primary text-sm flex items-center gap-2"><RotateCcw size="sm" /> Next Word</button>}
+              {result && <button onClick={next} className="btn-primary text-sm flex items-center gap-2"><RotateCcw className="w-4 h-4" /> Next Word</button>}
             </div>
           </div>
         )}

@@ -102,6 +102,13 @@ export const UserProvider = ({ children }) => {
     await axios.put('/api/users/change-password', { currentPassword, newPassword }, { headers: { 'X-User-Token': token } })
   }
 
+  const changeEmail = async (newEmail, currentPassword) => {
+    const token = localStorage.getItem('userToken')
+    const res = await axios.put('/api/users/change-email', { newEmail, currentPassword }, { headers: { 'X-User-Token': token } })
+    setUser(res.data.user)
+    return res.data
+  }
+
   const deleteAccount = async () => {
     const token = localStorage.getItem('userToken')
     await axios.delete('/api/users/account', { headers: { 'X-User-Token': token } })
@@ -158,7 +165,7 @@ export const UserProvider = ({ children }) => {
     <UserContext.Provider value={{
       user, loading, lastSession,
       register, login, loginWithGoogle, logout, updateProfile,
-      uploadAvatar, changePassword, deleteAccount, exportData,
+      uploadAvatar, changePassword, changeEmail, deleteAccount, exportData,
       recordStudyEvent, getStudyHistory,
       saveSession, syncProgress, loadCloudProgress,
       setUser

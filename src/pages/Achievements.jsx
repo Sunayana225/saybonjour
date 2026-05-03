@@ -118,23 +118,46 @@ export default function Achievements() {
           {filtered.map((badge, i) => (
             <motion.div key={badge.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
               className={`relative rounded-xl border p-4 transition-all ${badge.earned ? 'bg-white dark:bg-dark-warm-100 border-amber-200 dark:border-amber-700 shadow-sm' : 'bg-gray-50/80 dark:bg-dark-warm-200/50 border-gray-100 dark:border-dark-warm-50 opacity-70'}`}>
-              <div className="flex items-start gap-3">
-                <span className={`text-3xl ${badge.earned ? '' : 'grayscale opacity-50'}`}>{badge.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className={`font-semibold text-sm ${badge.earned ? 'text-gray-900 dark:text-cream-50' : 'text-gray-400 dark:text-gray-500'}`}>{badge.name}</h3>
-                    {badge.earned && <CheckCircle size={13} className="text-green-500 flex-shrink-0" />}
-                    {!badge.earned && <Lock size={11} className="text-gray-400 flex-shrink-0" />}
+              {(() => {
+                let pct = 0
+                let progressLabel = ''
+                if (!badge.earned) {
+                  if (badge.wordsRequired) { pct = Math.min(100, (progress.totalWordsLearned / badge.wordsRequired) * 100); progressLabel = `${Math.min(progress.totalWordsLearned, badge.wordsRequired)} / ${badge.wordsRequired} words` }
+                  else if (badge.streakRequired) { pct = Math.min(100, (progress.streak / badge.streakRequired) * 100); progressLabel = `${Math.min(progress.streak, badge.streakRequired)} / ${badge.streakRequired} days` }
+                  else if (badge.quizzesRequired) { pct = Math.min(100, (progress.totalQuizzesTaken / badge.quizzesRequired) * 100); progressLabel = `${Math.min(progress.totalQuizzesTaken, badge.quizzesRequired)} / ${badge.quizzesRequired} quizzes` }
+                  else if (badge.xpRequired && badge.xpRequired > 0) { pct = Math.min(100, (progress.xp / badge.xpRequired) * 100); progressLabel = `${Math.min(progress.xp, badge.xpRequired).toLocaleString()} / ${badge.xpRequired.toLocaleString()} XP` }
+                }
+                return (
+                  <div className="flex items-start gap-3">
+                    <span className={`text-3xl ${badge.earned ? '' : 'grayscale opacity-50'}`}>{badge.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className={`font-semibold text-sm ${badge.earned ? 'text-gray-900 dark:text-cream-50' : 'text-gray-400 dark:text-gray-500'}`}>{badge.name}</h3>
+                        {badge.earned && <CheckCircle size={13} className="text-green-500 flex-shrink-0" />}
+                        {!badge.earned && <Lock size={11} className="text-gray-400 flex-shrink-0" />}
+                      </div>
+                      <p className={`text-xs ${badge.earned ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400'}`}>{badge.description}</p>
+                      {badge.category && (
+                        <span className={`mt-2 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_COLORS[badge.category] || 'bg-gray-100 text-gray-600'}`}>{badge.category}</span>
+                      )}
+                      {!badge.earned && progressLabel && (
+                        <div className="mt-2">
+                          <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                            <span>{progressLabel}</span>
+                            <span>{Math.round(pct)}%</span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 dark:bg-dark-warm-50 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      )}
+                      {!badge.earned && badge.hint && !progressLabel && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">💡 {badge.hint}</p>
+                      )}
+                    </div>
                   </div>
-                  <p className={`text-xs ${badge.earned ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400'}`}>{badge.description}</p>
-                  {badge.category && (
-                    <span className={`mt-2 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_COLORS[badge.category] || 'bg-gray-100 text-gray-600'}`}>{badge.category}</span>
-                  )}
-                  {!badge.earned && badge.hint && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">💡 {badge.hint}</p>
-                  )}
-                </div>
-              </div>
+                )
+              })()}
             </motion.div>
           ))}
         </div>

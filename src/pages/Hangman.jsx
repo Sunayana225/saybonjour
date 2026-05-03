@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RotateCcw, Trophy, BookOpen, Lightbulb } from 'lucide-react'
+import { RotateCcw, Trophy, BookOpen, Lightbulb, ChevronLeft } from 'lucide-react'
 import SEO from '../components/SEO'
 import SpeakButton from '../components/SpeakButton'
 import { addXP } from '../utils/progress'
@@ -116,6 +117,9 @@ export default function Hangman() {
     <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300">
       <SEO title="French Hangman | SayBonjour!" description="Play French hangman and learn vocabulary while guessing words." />
       <div className="max-w-2xl mx-auto px-4 py-8">
+        <Link to="/games" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-burgundy-600 dark:hover:text-burgundy-400 mb-5 transition-colors group">
+          <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Games Hub
+        </Link>
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold font-playfair text-gray-900 dark:text-cream-50">French Hangman</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Le Pendu — Devinez le mot !</p>
@@ -156,7 +160,7 @@ export default function Hangman() {
           {!isWon && !isLost && (
             <div className="flex justify-center gap-2 mb-4">
               <button onClick={() => setShowHint(true)} className="flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-700">
-                <Lightbulb size="sm" /> {showHint ? wordObj.hint : 'Show hint'}
+                <Lightbulb className="w-4 h-4" /> {showHint ? wordObj.hint : 'Show hint'}
               </button>
             </div>
           )}
@@ -195,8 +199,8 @@ export default function Hangman() {
           </div>
 
           <div className="flex gap-3 mt-4 justify-center">
-            <button onClick={pickWord} className="btn-secondary flex items-center gap-2 text-sm"><RotateCcw size="sm" /> New Word</button>
-            {isLost && <button onClick={() => setRevealed(true)} className="btn-secondary flex items-center gap-2 text-sm"><BookOpen size="sm" /> Reveal</button>}
+            <button onClick={pickWord} className="btn-secondary flex items-center gap-2 text-sm"><RotateCcw className="w-4 h-4" /> New Word</button>
+            {isLost && <button onClick={() => setRevealed(true)} className="btn-secondary flex items-center gap-2 text-sm"><BookOpen className="w-4 h-4" /> Reveal</button>}
           </div>
         </div>
         <p className="text-center text-xs text-gray-400 mt-3">Tip: You can also use your keyboard!</p>

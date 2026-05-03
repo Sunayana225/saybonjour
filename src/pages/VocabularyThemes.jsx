@@ -145,7 +145,7 @@ export default function VocabularyThemes() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">{theme.fr} · {theme.words.length} words</p>
               </div>
               <div className="relative">
-                <Search size="sm" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter…"
                   className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 dark:border-dark-warm-50 rounded-lg bg-white dark:bg-dark-warm-100 text-gray-900 dark:text-cream-50 focus:outline-none w-40" />
               </div>

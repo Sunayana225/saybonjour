@@ -127,7 +127,7 @@ export default function TongueTwisters() {
 
         <button onClick={() => { setPracticeMode(true); setPracticeIdx(0) }}
           className="btn-primary w-full mb-6 flex items-center justify-center gap-2">
-          <Timer size="md" /> Practice Mode — one by one
+          <Timer className="w-4 h-4" /> Practice Mode — one by one
         </button>
 
         <div className="space-y-3">
@@ -143,7 +143,7 @@ export default function TongueTwisters() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <SpeakButton text={t.text} lang="fr-FR" size="sm" />
-                  <ChevronRight size="md" className={`text-gray-400 transition-transform ${expanded === i ? 'rotate-90' : ''}`} />
+                  <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expanded === i ? 'rotate-90' : ''}`} />
                 </div>
               </button>
               {expanded === i && (
@@ -155,7 +155,7 @@ export default function TongueTwisters() {
                     <p className="text-gray-700 dark:text-gray-300">{t.tip}</p>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => { setPracticeMode(true); setPracticeIdx(i) }} className="btn-secondary text-sm flex items-center gap-1"><Timer size="sm" /> Practice this</button>
+                    <button onClick={() => { setPracticeMode(true); setPracticeIdx(i) }} className="btn-secondary text-sm flex items-center gap-1"><Timer className="w-4 h-4" /> Practice this</button>
                     <button onClick={() => toggleMastered(i)} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mastered.includes(i) ? 'bg-green-500 text-white' : 'bg-gray-100 dark:bg-dark-warm-200 text-gray-700 dark:text-gray-300 hover:bg-gray-200'}`}>
                       {mastered.includes(i) ? '✓ Mastered' : 'Mark mastered'}
                     </button>

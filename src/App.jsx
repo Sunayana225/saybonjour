@@ -31,6 +31,13 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import VerifyEmail from './pages/VerifyEmail'
+import VerificationBanner from './components/VerificationBanner'
+import StreakSaver from './components/StreakSaver'
+import ProgressSyncToast from './components/ProgressSyncToast'
+import LevelUpToast from './components/LevelUpToast'
+import BadgeToast from './components/BadgeToast'
+import XPGainPopup from './components/XPGainPopup'
 import Profile from './pages/Profile'
 import Onboarding from './pages/Onboarding'
 import DailyChallenges from './pages/DailyChallenges'
@@ -49,6 +56,7 @@ import Conversation from './pages/Conversation'
 import Levels from './pages/Levels'
 import NotFound from './pages/NotFound'
 import FrenchNumbers from './pages/FrenchNumbers'
+import Games from './pages/Games'
 import Hangman from './pages/Hangman'
 import WordScramble from './pages/WordScramble'
 import SpellingBee from './pages/SpellingBee'
@@ -191,9 +199,15 @@ function App() {
           <UserProvider>
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <DailyLoginReward />
+              <LevelUpToast />
+              <BadgeToast />
+              <XPGainPopup />
               <div className="min-h-screen bg-cream-50 dark:bg-dark-warm-300 transition-colors duration-300">
                 <Navbar />
                 <AnnouncementBar onVisibilityChange={handleBarVisibility} />
+                <VerificationBanner />
+                <StreakSaver />
+                <ProgressSyncToast />
                 <main style={{ paddingTop: barVisible ? '96px' : '60px' }}>
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -216,6 +230,7 @@ function App() {
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/daily-challenges" element={<DailyChallenges />} />
@@ -236,6 +251,7 @@ function App() {
                     <Route path="/conversation" element={<Conversation />} />
                     <Route path="/levels" element={<Levels />} />
                     <Route path="/numbers" element={<FrenchNumbers />} />
+                    <Route path="/games" element={<Games />} />
                     <Route path="/hangman" element={<Hangman />} />
                     <Route path="/word-scramble" element={<WordScramble />} />
                     <Route path="/spelling-bee" element={<SpellingBee />} />
@@ -342,12 +358,12 @@ function App() {
                     <Route path="/french-conversation-topics" element={<FrenchConversationTopics />} />
                     <Route path="/french-regions" element={<FrenchRegionalFrance />} />
                     <Route path="/french-social-media" element={<FrenchSocialMedia />} />
-                    <Route path="/french-politics" element={<FrenchPoliticsVocab />} />
+                    <Route path="/french-politics-vocab" element={<FrenchPoliticsVocab />} />
                     <Route path="/french-time-expressions" element={<FrenchTimeExpressions />} />
                     <Route path="/french-cinema" element={<FrenchCinema />} />
-                    <Route path="/french-weather" element={<FrenchWeather2 />} />
+                    <Route path="/french-weather-2" element={<FrenchWeather2 />} />
                     <Route path="/french-colors-guide" element={<FrenchColors2 />} />
-                    <Route path="/french-transport" element={<FrenchTransport2 />} />
+                    <Route path="/french-transport-2" element={<FrenchTransport2 />} />
                     <Route path="/admin/pages" element={<AdminFeaturePages />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

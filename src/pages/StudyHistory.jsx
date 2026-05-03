@@ -143,7 +143,7 @@ export default function StudyHistory() {
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
             { label: 'Total Sessions', value: totalSessions, icon: Clock, color: 'text-blue-600 dark:text-blue-400' },
-            { label: 'XP from history', value: `+${totalXpEarned}`, icon: Star, color: 'text-amber-600 dark:text-amber-400' },
+            { label: 'XP from history', value: totalXpEarned > 0 ? `+${totalXpEarned}` : totalXpEarned, icon: Star, color: 'text-amber-600 dark:text-amber-400' },
             { label: 'Active Days', value: activeDays, icon: Calendar, color: 'text-green-600 dark:text-green-400' },
           ].map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="bg-white dark:bg-dark-warm-100 rounded-2xl p-4 shadow-sm text-center">

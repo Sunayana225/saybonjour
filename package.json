@@ -33,6 +33,7 @@
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.20.1",
+    "resend": "^6.12.2",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
