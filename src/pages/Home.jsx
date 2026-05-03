@@ -1081,9 +1081,9 @@ const Home = () => {
             <div>
               <h3 className="text-burgundy-300 font-semibold text-sm uppercase tracking-wider mb-4">Levels</h3>
               <ul className="space-y-3 text-sm">
-                <li><Link to="/resources" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Beginner (A1-A2)</Link></li>
-                <li><Link to="/resources" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Intermediate (B1-B2)</Link></li>
-                <li><Link to="/resources" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Advanced (C1-C2)</Link></li>
+                <li><Link to="/levels" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Beginner (A1-A2)</Link></li>
+                <li><Link to="/levels" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Intermediate (B1-B2)</Link></li>
+                <li><Link to="/levels" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Advanced (C1-C2)</Link></li>
                 <li><Link to="/grammar" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Grammar Basics</Link></li>
                 <li><Link to="/vocabulary" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Vocabulary Building</Link></li>
                 <li><Link to="/pronunciation" className="text-cream-200 hover:text-cream-50 transition-colors duration-200">Pronunciation Guide</Link></li>
