@@ -161,6 +161,7 @@ import FrenchCinema from './pages/FrenchCinema'
 import FrenchWeather2 from './pages/FrenchWeather2'
 import FrenchColors2 from './pages/FrenchColors2'
 import FrenchTransport2 from './pages/FrenchTransport2'
+import AdminFeaturePages from './pages/AdminFeaturePages'
 import { claimDailyLoginReward } from './utils/progress'
 
 const DailyLoginReward = () => {
@@ -347,6 +348,7 @@ function App() {
                     <Route path="/french-weather" element={<FrenchWeather2 />} />
                     <Route path="/french-colors-guide" element={<FrenchColors2 />} />
                     <Route path="/french-transport" element={<FrenchTransport2 />} />
+                    <Route path="/admin/pages" element={<AdminFeaturePages />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

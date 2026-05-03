@@ -833,6 +833,13 @@ const Admin = () => {
             >
               <Layers className="inline-block w-4 h-4 mr-2" />Sentences
             </button>
+            <a
+              href="/admin/pages"
+              className="py-2 px-1 border-b-2 border-transparent font-medium text-sm whitespace-nowrap text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center"
+            >
+              <Layers className="inline-block w-4 h-4 mr-2" />
+              Feature Pages
+            </a>
             <button
               onClick={() => setActiveTab('site-settings')}
               className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
