@@ -33,6 +33,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
 import VerificationBanner from './components/VerificationBanner'
+import StreakSaver from './components/StreakSaver'
 import Profile from './pages/Profile'
 import Onboarding from './pages/Onboarding'
 import DailyChallenges from './pages/DailyChallenges'
@@ -197,6 +198,7 @@ function App() {
                 <Navbar />
                 <AnnouncementBar onVisibilityChange={handleBarVisibility} />
                 <VerificationBanner />
+                <StreakSaver />
                 <main style={{ paddingTop: barVisible ? '96px' : '60px' }}>
                   <Routes>
                     <Route path="/" element={<Home />} />

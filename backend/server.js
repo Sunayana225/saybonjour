@@ -1608,6 +1608,60 @@ app.post('/api/users/reset-password', (req, res) => {
   }
 })
 
+app.put('/api/users/change-email', authenticateUser, async (req, res) => {
+  const { newEmail, currentPassword } = req.body
+  if (!newEmail || !currentPassword) return res.status(400).json({ message: 'New email and current password are required.' })
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(newEmail)) return res.status(400).json({ message: 'Invalid email address.' })
+  try {
+    const db = new Database(path.join(__dirname, 'french_learning.db'))
+    const user = db.prepare('SELECT id, email, password_hash FROM users WHERE id = ?').get(req.userId)
+    if (!user) { db.close(); return res.status(404).json({ message: 'User not found.' }) }
+    let valid = false
+    try { valid = verifyUserPassword(currentPassword, user.password_hash) } catch {}
+    if (!valid) { db.close(); return res.status(401).json({ message: 'Current password is incorrect.' }) }
+    if (newEmail.toLowerCase() === user.email.toLowerCase()) { db.close(); return res.status(400).json({ message: 'New email must be different from your current email.' }) }
+    const existing = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?) AND id != ?').get(newEmail, req.userId)
+    if (existing) { db.close(); return res.status(409).json({ message: 'That email is already in use by another account.' }) }
+    const verifyToken = crypto.randomBytes(32).toString('hex')
+    const verifyExpiry = Date.now() + 24 * 60 * 60 * 1000
+    db.prepare('UPDATE users SET email = ?, email_verified = 0, verification_token = ?, verification_token_expiry = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(newEmail.toLowerCase(), verifyToken, verifyExpiry, req.userId)
+    const updatedUser = db.prepare('SELECT id, name, email, cefr_level, goal, daily_goal_mins, avatar_url, bio, email_verified FROM users WHERE id = ?').get(req.userId)
+    db.close()
+    const appUrl = process.env.APP_URL || `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app`
+    const verifyUrl = `${appUrl}/verify-email?token=${verifyToken}`
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: 'SayBonjour! <onboarding@resend.dev>',
+          to: newEmail,
+          subject: 'Confirm your new email — SayBonjour!',
+          html: `<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#222">
+            <div style="background:#7c2d3e;border-radius:12px;padding:20px 24px;margin-bottom:24px">
+              <h1 style="color:#fff;margin:0;font-size:22px;font-family:Georgia,serif">SayBonjour!</h1>
+              <p style="color:#f5c2cc;margin:4px 0 0;font-size:13px">French Learning Platform</p>
+            </div>
+            <h2 style="font-size:18px;margin-bottom:8px">Confirm your new email address</h2>
+            <p style="color:#555;font-size:14px;line-height:1.6">Hi ${updatedUser.name},<br><br>
+              You recently changed the email address on your SayBonjour! account. Please confirm your new address by clicking the button below.
+            </p>
+            <div style="text-align:center;margin:28px 0">
+              <a href="${verifyUrl}" style="display:inline-block;background:#7c2d3e;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Confirm new email</a>
+            </div>
+            <p style="color:#999;font-size:12px;text-align:center">This link expires in 24 hours. If you did not make this change, please contact us immediately.</p>
+          </body></html>`,
+        })
+      } catch (mailErr) {
+        console.error('Email change verification mail failed:', mailErr)
+      }
+    }
+    res.json({ message: 'Email updated. Please check your inbox to verify your new address.', user: updatedUser })
+  } catch (e) {
+    console.error('Change email error:', e)
+    res.status(500).json({ message: 'Failed to update email.' })
+  }
+})
+
 app.delete('/api/users/account', authenticateUser, (req, res) => {
   try {
     const db = new Database(path.join(__dirname, 'french_learning.db'))
