@@ -36,9 +36,9 @@ const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('he
 
 // Admin credentials — use env vars when set, otherwise use fallback defaults
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin'
-// Hash of 'Admin1234' (pbkdf2, salt='salt', 1000 iter, 64 bytes, sha512)
+// Hash of 'admin123' (pbkdf2, salt='salt', 1000 iter, 64 bytes, sha512)
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ||
-  'a076d05009691df9ff225ecf2dc51b40ba45b240dbd07fa67dabddfb48ee2c26ac2b4350498c380c75787c844479e95e6e4174d824c225ee08c8a3ab76329144'
+  'e3785eb127967978875a4fc31f738cef248a4578a242300114fab5550e76190690d32a8b96e26b3b2e6efb7f78b5e633b8392eb2c8a341d5cc8c619c7fd9b145'
 
 // Helper function to hash passwords
 const hashPassword = (password) => {

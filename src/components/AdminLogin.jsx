@@ -88,13 +88,13 @@ const AdminLogin = ({ onLoginSuccess }) => {
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center z-20"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-gray-400" />
+                  <EyeOff className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                 ) : (
-                  <Eye className="h-4 w-4 text-gray-400" />
+                  <Eye className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                 )}
               </button>
             </div>
@@ -132,9 +132,12 @@ const AdminLogin = ({ onLoginSuccess }) => {
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-1">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               CSRF Token: {csrfToken ? 'Active' : 'Loading...'}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Default credentials: <span className="font-mono font-semibold">admin</span> / <span className="font-mono font-semibold">admin123</span>
             </p>
           </div>
         </form>
