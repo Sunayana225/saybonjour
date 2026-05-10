@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 
 const SITE_URL = 'https://saybonjour.com'
 const SITE_NAME = 'SayBonjour!'
+const SITE_AUTHOR = 'Sunayana' // homepage author name used for structured data
 const DEFAULT_TITLE = 'SayBonjour! — Learn French Online | Interactive French Learning Platform'
 const DEFAULT_DESC  = 'Master French with SayBonjour! — interactive lessons, quizzes, vocabulary tools, cultural insights, and daily challenges. Free French learning for all levels.'
 const DEFAULT_KEYS  = 'learn french, french lessons online, french vocabulary, french grammar, french quizzes, french culture, saybonjour'
@@ -65,6 +66,21 @@ const SEO = ({
     },
   } : null
 
+  // If this is the home page, emit a Person schema for the site author
+  const homeAuthorSchema = isHome ? {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    jobTitle: 'Founder',
+    affiliation: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+    // Fill these with real profile URLs to strengthen identity signals
+    sameAs: [
+      'https://twitter.com/your_profile',
+      'https://www.linkedin.com/in/your_profile',
+      'https://instagram.com/your_profile'
+    ]
+  } : null
+
   // Course pages
   const courseSchema = type === 'course' ? {
     '@context': 'https://schema.org',
@@ -100,6 +116,15 @@ const SEO = ({
     keywords: tags.join(', '),
     inLanguage: 'en',
     about: { '@type': 'Thing', name: 'French Language Learning' },
+  } : null
+
+  // Emit a Person schema for author (non-visible) so search engines can associate a named author
+  // If you prefer the author to be a Person rather than an Organization set `author` prop accordingly.
+  const authorPersonSchema = author ? {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: author,
+    url: canonicalUrl, // points to this page; can be changed to an author profile URL if desired
   } : null
 
   // Default WebPage schema for all other pages
@@ -165,11 +190,17 @@ const SEO = ({
       {websiteSchema && (
         <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
       )}
+      {homeAuthorSchema && (
+        <script type="application/ld+json">{JSON.stringify(homeAuthorSchema)}</script>
+      )}
       {courseSchema && (
         <script type="application/ld+json">{JSON.stringify(courseSchema)}</script>
       )}
       {articleSchema && (
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+      )}
+      {authorPersonSchema && (
+        <script type="application/ld+json">{JSON.stringify(authorPersonSchema)}</script>
       )}
       {webPageSchema && (
         <script type="application/ld+json">{JSON.stringify(webPageSchema)}</script>
